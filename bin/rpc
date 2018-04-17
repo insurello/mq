@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+const mq = require("../src/queue.js");
+const program = require("commander");
+
+program
+  .version("1.0.0")
+  .arguments("<routingKey>")
+  .description("Remote procedure call.")
+  .option("-d, --data <json>", "payload data (json string)")
+  .option("-t, --ttl <milliseconds>", "timeout in milliseconds")
+  .option("-s, --silent", "silent mode (don't output anything)")
+  .action(function(routingKey) {
+    const payload = program.data ? JSON.parse(program.data) : {};
+    const ttl = program.ttl ? parseInt(program.ttl) : undefined;
+    if (routingKey) {
+      mq.connect();
+      const interval = setInterval(() => {
+        if (mq.isConnected()) {
+          clearInterval(interval);
+          mq.rpc(routingKey, payload, {}, ttl)
+            .then((msg) => { console.log(msg); process.exit(0); })
+            .catch((err) => { console.error(err); process.exit(1); })
+        }
+      }, 100);
+    } else {
+      program.outputHelp();
+    }
+  });
+
+program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}
+
+if (program.silent) {
+  mq.logger = () => {};
+}
