@@ -2,13 +2,12 @@
   "name": "mq",
   "version": "1.2.0",
   "description": "Message queue library for RPC and PUB/SUB over AMQP.",
-  "main": "./src/queue.js",
-  "types": "./src/queue.d.ts",
+  "main": "./dist/queue.js",
+  "types": "./dist/queue.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "./node_modules/.bin/tsc --project . --pretty --declaration",
-    "lint": "tslint --project . --format codeFrame",
-    "lint:fix": "tslint --fix --project . --format codeFrame"
+    "test": "make test",
+    "compile": "make",
+    "lint": "make lint"
   },
   "repository": {
     "type": "git",
