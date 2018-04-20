@@ -1,6 +1,6 @@
 {
   "name": "mq",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Message queue library for RPC and PUB/SUB over AMQP.",
   "main": "./src/queue.js",
   "types": "./src/queue.d.ts",
