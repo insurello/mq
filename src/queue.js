@@ -8,7 +8,7 @@ const callbacks = {};
 const workers = {};
 const subscribers = {};
 const fifoQueue = [];
-let replyTo = undefined;
+let replyToQueue;
 let connected = false;
 exports.isConnected = () => connected;
 exports.connect = function () {
@@ -30,7 +30,7 @@ exports.connect = function () {
         connected = false;
     });
     connection.on("close", function () {
-        replyTo = undefined;
+        replyToQueue = undefined;
     });
     connection.on("close", function () {
         clearInterval(interval);
@@ -65,7 +65,7 @@ exports.connect = function () {
     });
     const subscribeReplyTo = function () {
         const q = connection.queue("", { exclusive: true }, function (info) {
-            replyTo = info.name;
+            replyToQueue = info.name;
             q.subscribe({ exclusive: true }, function (message, _headers, deliveryInfo, _ack) {
                 for (const correlationId in callbacks) {
                     if (correlationId === deliveryInfo.correlationId) {
@@ -194,12 +194,12 @@ exports.worker = function (routingKey, func) {
     workers[routingKey].push(func);
 };
 exports.rpc = function (routingKey, data, headers, ttl) {
-    if (replyTo) {
+    if (replyToQueue) {
         const _ttl = ttl || 60 * 1000;
         const correlationId = uuidv4();
         const options = {
             contentType: "application/json",
-            replyTo,
+            replyTo: replyToQueue,
             correlationId,
             expiration: _ttl.toString(),
             headers: headers ? headers : {}

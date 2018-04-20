@@ -1,4 +1,6 @@
 {
-   "extends": ["tslint-insurello"],
-   "rules": {}
+  "extends": ["tslint-insurello"],
+  "rules": {
+    "max-file-line-count": [true, 400]
+  }
 }

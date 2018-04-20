@@ -31,7 +31,7 @@ const workers: Queues = {};
 const subscribers: Queues = {};
 const fifoQueue: Message[] = [];
 
-let replyTo: string | undefined = undefined;
+let replyToQueue: string | undefined;
 
 let connected: boolean = false;
 export const isConnected = () => connected;
@@ -60,7 +60,7 @@ export const connect = function() {
   });
 
   connection.on("close", function() {
-    replyTo = undefined;
+    replyToQueue = undefined;
   });
 
   connection.on("close", function() {
@@ -103,7 +103,7 @@ export const connect = function() {
   const subscribeReplyTo = function() {
     const q = connection.queue("", { exclusive: true },
       function(info: amqp.QueueCallback) {
-        replyTo = info.name;
+        replyToQueue = info.name;
         q.subscribe({ exclusive: true },
           function(message, _headers, deliveryInfo, _ack) {
             for (const correlationId in callbacks) {
@@ -119,7 +119,7 @@ export const connect = function() {
             }
           });
     });
-  }
+  };
 
   const subscribeWorker = function(routingKey: string, func: Worker) {
     const q = connection.queue(routingKey, { autoDelete: false, durable: true },
@@ -177,7 +177,11 @@ export const connect = function() {
     }
   };
 
-  const sendReply = function(replyTo: string, correlationId: string, value: any, headers: Headers) {
+  const sendReply = function(
+      replyTo: string,
+      correlationId: string,
+      value: any,
+      headers: Headers) {
     if (replyTo && value) {
       const options: amqp.ExchangePublishOptions = {
         contentType: "application/json",
@@ -260,12 +264,12 @@ export const rpc = function(
     data: {} | Buffer,
     headers?: Headers,
     ttl?: number): PromiseLike<any> {
-  if (replyTo) {
+  if (replyToQueue) {
     const _ttl = ttl || 60 * 1000;
     const correlationId = uuidv4();
     const options: amqp.ExchangePublishOptions = {
       contentType: "application/json",
-      replyTo,
+      replyTo: replyToQueue,
       correlationId,
       expiration: _ttl.toString(),
       headers: headers ? headers : {}
