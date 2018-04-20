@@ -207,6 +207,7 @@ exports.rpc = function (routingKey, data, headers, ttl) {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 clearTimeout(timeout);
+                delete callbacks[correlationId];
                 reject(new Error("Timeout"));
             }, _ttl);
             callbacks[correlationId] = (msg, err) => {
