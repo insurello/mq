@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const mq = require("../src/queue.js");
+const mq = require("../dist/queue.js");
 const program = require("commander");
 
 program
