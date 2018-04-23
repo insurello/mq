@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const amqp = require("amqp");
 const async_mutex_1 = require("async-mutex");
+const stream_1 = require("stream");
 const uuidv4 = require("uuid/v4");
 exports.logger = console.log;
 const callbacks = {};
@@ -66,12 +67,24 @@ exports.connect = function () {
     const subscribeReplyTo = function () {
         const q = connection.queue("", { exclusive: true }, function (info) {
             replyToQueue = info.name;
-            q.subscribe({ exclusive: true }, function (message, _headers, deliveryInfo, _ack) {
+            q.subscribe({ exclusive: true }, function (message, headers, deliveryInfo, _ack) {
                 for (const correlationId in callbacks) {
                     if (correlationId === deliveryInfo.correlationId) {
                         if (callbacks.hasOwnProperty(correlationId)) {
                             try {
-                                callbacks[correlationId].call(undefined, message);
+                                switch (headers["x-stream"]) {
+                                    case "error":
+                                        callbacks[correlationId].call(undefined, null, message);
+                                        break;
+                                    case "data":
+                                        callbacks[correlationId].call(undefined, message);
+                                        break;
+                                    case "end":
+                                        delete callbacks[correlationId];
+                                        break;
+                                    default:
+                                        callbacks[correlationId].call(undefined, message);
+                                }
                             }
                             catch (error) {
                                 exports.logger(error);
@@ -103,11 +116,25 @@ exports.connect = function () {
         const correlationId = deliveryInfo.correlationId;
         try {
             const result = workerFunc(message, headers);
-            if (result && result.then) {
+            if (result instanceof Promise) {
                 result.then((value) => {
                     sendReply(replyTo, correlationId, value, headers);
                     acknowledge();
                 }, acknowledge);
+            }
+            else if (result instanceof stream_1.Readable) {
+                acknowledge();
+                result
+                    .on("error", (err) => {
+                    exports.logger(err);
+                    sendReply(replyTo, correlationId, err, { "x-stream": "error" });
+                })
+                    .on("data", (data) => {
+                    sendReply(replyTo, correlationId, data, { "x-stream": "data" });
+                })
+                    .on("end", () => {
+                    sendReply(replyTo, correlationId, {}, { "x-stream": "end" });
+                });
             }
             else {
                 acknowledge();
@@ -129,7 +156,7 @@ exports.connect = function () {
         }
     };
     const sendReply = function (replyTo, correlationId, value, headers) {
-        if (replyTo && value) {
+        if (replyTo) {
             const options = {
                 contentType: "application/json",
                 headers: headers ? headers : {},
@@ -230,6 +257,45 @@ exports.rpc = function (routingKey, data, headers, ttl) {
     }
     else {
         return Promise.reject(new Error("Not connected to broker"));
+    }
+};
+exports.stream = function (routingKey, data, headers, ttl) {
+    if (replyToQueue) {
+        const rs = new stream_1.Readable({ objectMode: true });
+        rs._read = () => { };
+        const _ttl = ttl || 60 * 1000;
+        const correlationId = uuidv4();
+        const options = {
+            contentType: "application/json",
+            replyTo: replyToQueue,
+            correlationId,
+            expiration: _ttl.toString(),
+            headers: headers ? headers : {}
+        };
+        const timeout = setTimeout(() => {
+            clearTimeout(timeout);
+            delete callbacks[correlationId];
+            rs.emit("error", new Error("Timeout"));
+        }, _ttl);
+        callbacks[correlationId] = (msg, err) => {
+            clearTimeout(timeout);
+            if (err) {
+                rs.emit("error", err);
+            }
+            else {
+                rs.push(msg);
+            }
+        };
+        fifoQueue.push({
+            exchangeName: "",
+            routingKey,
+            data,
+            options
+        });
+        return rs;
+    }
+    else {
+        throw new Error("Not connected to broker");
     }
 };
 exports.publish = function (routingKey, data, headers) {

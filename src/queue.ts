@@ -1,11 +1,13 @@
 import * as amqp from "amqp";
 import { Mutex } from "async-mutex";
+import { Readable } from "stream";
 import * as uuidv4 from "uuid/v4";
 
 export let logger = console.log;
 
 export type Worker =
-  (message: any, headers: Headers) => PromiseLike<any> | void;
+  (message: any, headers: Headers) =>
+    PromiseLike<any> | Readable | void;
 
 export interface Headers {
   [key: string]: any
@@ -105,12 +107,24 @@ export const connect = function() {
       function(info: amqp.QueueCallback) {
         replyToQueue = info.name;
         q.subscribe({ exclusive: true },
-          function(message, _headers, deliveryInfo, _ack) {
+          function(message, headers, deliveryInfo, _ack) {
             for (const correlationId in callbacks) {
               if (correlationId === (deliveryInfo as any).correlationId) {
                 if (callbacks.hasOwnProperty(correlationId)) {
                   try {
-                    callbacks[correlationId].call(undefined, message);
+                    switch (headers["x-stream"]) {
+                      case "error":
+                        callbacks[correlationId].call(undefined, null, message);
+                        break;
+                      case "data":
+                        callbacks[correlationId].call(undefined, message);
+                        break;
+                      case "end":
+                        delete callbacks[correlationId];
+                        break;
+                      default:
+                        callbacks[correlationId].call(undefined, message);
+                    }
                   } catch (error) {
                     logger(error);
                   }
@@ -153,11 +167,24 @@ export const connect = function() {
     const correlationId = (deliveryInfo as any).correlationId;
     try {
       const result = workerFunc(message, headers);
-      if (result && result.then) {
-        result.then((value) => {
+      if (result instanceof Promise) {
+        result.then((value: any) => {
           sendReply(replyTo, correlationId, value, headers);
           acknowledge();
         }, acknowledge);
+      } else if (result instanceof Readable) {
+        acknowledge();
+        (result as Readable)
+          .on("error", (err) => {
+            logger(err);
+            sendReply(replyTo, correlationId, err, { "x-stream": "error" });
+          })
+          .on("data", (data) => {
+            sendReply(replyTo, correlationId, data, { "x-stream": "data" });
+          })
+          .on("end", () => {
+            sendReply(replyTo, correlationId, {}, { "x-stream": "end" });
+          });
       } else {
         acknowledge();
       }
@@ -182,7 +209,7 @@ export const connect = function() {
       correlationId: string,
       value: any,
       headers: Headers) {
-    if (replyTo && value) {
+    if (replyTo) {
       const options: amqp.ExchangePublishOptions = {
         contentType: "application/json",
         headers: headers ? headers : {},
@@ -298,6 +325,48 @@ export const rpc = function(
     });
   } else {
     return Promise.reject(new Error("Not connected to broker"));
+  }
+};
+
+export const stream = function(
+    routingKey: string,
+    data: {} | Buffer,
+    headers?: Headers,
+    ttl?: number): Readable {
+  if (replyToQueue) {
+    const rs = new Readable({ objectMode: true });
+    rs._read = () => { /* nop */ };
+    const _ttl = ttl || 60 * 1000;
+    const correlationId = uuidv4();
+    const options: amqp.ExchangePublishOptions = {
+      contentType: "application/json",
+      replyTo: replyToQueue,
+      correlationId,
+      expiration: _ttl.toString(),
+      headers: headers ? headers : {}
+    };
+    const timeout = setTimeout(() => {
+      clearTimeout(timeout);
+      delete callbacks[correlationId];
+      rs.emit("error", new Error("Timeout"));
+    }, _ttl);
+    callbacks[correlationId] = (msg, err) => {
+      clearTimeout(timeout);
+      if (err) {
+        rs.emit("error", err);
+      } else {
+        rs.push(msg);
+      }
+    };
+    fifoQueue.push({
+      exchangeName: "",
+      routingKey,
+      data,
+      options
+    });
+    return rs;
+  } else {
+    throw new Error("Not connected to broker");
   }
 };
 
