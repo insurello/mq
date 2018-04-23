@@ -2,6 +2,22 @@
 
 const mq = require("../dist/queue.js");
 const program = require("commander");
+const through2 = require("through2");
+
+const connect = (func) => {
+  mq.connect();
+  const interval = setInterval(() => {
+    if (mq.isConnected()) {
+      clearInterval(interval);
+      func();
+    }
+  }, 100);
+};
+
+const jsonStream = through2.obj(function(chunk, encoding, callback) {
+    this.push(JSON.stringify(chunk, null, 4) + '\n');
+    callback();
+});
 
 program
   .version("1.2.0")
@@ -10,19 +26,22 @@ program
   .option("-d, --data <json>", "payload data (json string)")
   .option("-t, --ttl <milliseconds>", "timeout in milliseconds")
   .option("-s, --silent", "silent mode (don't output anything)")
+  .option("-S, --stream", "use streaming mode")
   .action(function(routingKey) {
     const payload = program.data ? JSON.parse(program.data) : {};
     const ttl = program.ttl ? parseInt(program.ttl) : undefined;
     if (routingKey) {
-      mq.connect();
-      const interval = setInterval(() => {
-        if (mq.isConnected()) {
-          clearInterval(interval);
+      connect(() => {
+        if (program.stream) {
+          mq.stream(routingKey, payload, {}, ttl)
+            .pipe(jsonStream)
+            .pipe(process.stdout);
+        } else {
           mq.rpc(routingKey, payload, {}, ttl)
             .then((msg) => { console.log(msg); process.exit(0); })
-            .catch((err) => { console.error(err); process.exit(1); })
+            .catch((err) => { console.error(err); process.exit(1); });
         }
-      }, 100);
+      });
     } else {
       program.outputHelp();
     }
