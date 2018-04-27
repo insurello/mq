@@ -45,8 +45,8 @@ exports.connect = function () {
     connection.on("ready", function () {
         for (const routingKey in workers) {
             if (workers.hasOwnProperty(routingKey)) {
-                workers[routingKey].forEach((func) => {
-                    subscribeWorker(routingKey, func);
+                workers[routingKey].forEach((_worker) => {
+                    subscribeWorker(routingKey, _worker.func, _worker.options);
                 });
             }
         }
@@ -54,8 +54,8 @@ exports.connect = function () {
     connection.on("ready", function () {
         for (const topic in subscribers) {
             if (subscribers.hasOwnProperty(topic)) {
-                subscribers[topic].forEach((func) => {
-                    subscribeTopic(topic, func);
+                subscribers[topic].forEach((_worker) => {
+                    subscribeTopic(topic, _worker.func, _worker.options);
                 });
             }
         }
@@ -82,23 +82,28 @@ exports.connect = function () {
             });
         });
     };
-    const subscribeWorker = function (routingKey, func) {
+    const subscribeWorker = function (routingKey, func, options) {
         const q = connection.queue(routingKey, { autoDelete: false, durable: true }, function (_info) {
             q.subscribe({ ack: true, prefetchCount: 1 }, function (message, headers, deliveryInfo, ack) {
-                messageHandler(func, message, headers, deliveryInfo, ack);
+                messageHandler(func, message, headers, deliveryInfo, ack, options);
             });
         });
     };
-    const subscribeTopic = function (topic, func) {
+    const subscribeTopic = function (topic, func, options) {
         const q = connection.queue(topic, { autoDelete: false, durable: true }, function (_info) {
             q.bind("amq.topic", topic);
             q.subscribe({ ack: true, prefetchCount: 1 }, function (message, headers, deliveryInfo, ack) {
-                messageHandler(func, message, headers, deliveryInfo, ack);
+                messageHandler(func, message, headers, deliveryInfo, ack, options);
             });
         });
     };
-    const messageHandler = function (workerFunc, message, headers, deliveryInfo, ack) {
-        const acknowledge = acknowledgeHandler.bind(ack);
+    const messageHandler = function (workerFunc, message, headers, deliveryInfo, ack, options) {
+        if (options.acknowledgeOnReciept) {
+            acknowledgeHandler.call(ack);
+        }
+        const acknowledge = options.acknowledgeOnReciept ?
+            ((error) => { exports.logger(error); }) :
+            acknowledgeHandler.bind(ack);
         const replyTo = deliveryInfo.replyTo;
         const correlationId = deliveryInfo.correlationId;
         try {
@@ -189,9 +194,12 @@ exports.enqueue = function (routingKey, data, headers) {
         options
     });
 };
-exports.worker = function (routingKey, func) {
+exports.worker = function (routingKey, func, options) {
     workers[routingKey] = workers[routingKey] || [];
-    workers[routingKey].push(func);
+    workers[routingKey].push({
+        func,
+        options: options ? options : { acknowledgeOnReciept: false }
+    });
 };
 exports.rpc = function (routingKey, data, headers, ttl) {
     if (replyToQueue) {
@@ -245,7 +253,10 @@ exports.publish = function (routingKey, data, headers) {
         options
     });
 };
-exports.subscribe = function (topic, func) {
+exports.subscribe = function (topic, func, options) {
     subscribers[topic] = subscribers[topic] || [];
-    subscribers[topic].push(func);
+    subscribers[topic].push({
+        func,
+        options: options ? options : { acknowledgeOnReciept: false }
+    });
 };

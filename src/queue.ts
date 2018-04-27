@@ -7,12 +7,16 @@ export let logger = console.log;
 export type Worker =
   (message: any, headers: Headers) => PromiseLike<any> | void;
 
+export interface WorkerOptions {
+  acknowledgeOnReceipt: boolean;
+}
+
 export interface Headers {
   [key: string]: any
 }
 
 interface Queues {
-  [name: string]: Worker[]
+  [name: string]: Array<{ func: Worker, options: WorkerOptions }>
 }
 
 interface Callbacks {
@@ -79,8 +83,8 @@ export const connect = function() {
   connection.on("ready", function() {
     for (const routingKey in workers) {
       if (workers.hasOwnProperty(routingKey)) {
-        workers[routingKey].forEach((func) => {
-          subscribeWorker(routingKey, func);
+        workers[routingKey].forEach((_worker) => {
+          subscribeWorker(routingKey, _worker.func, _worker.options);
         });
       }
     }
@@ -89,8 +93,8 @@ export const connect = function() {
   connection.on("ready", function() {
     for (const topic in subscribers) {
       if (subscribers.hasOwnProperty(topic)) {
-        subscribers[topic].forEach((func) => {
-          subscribeTopic(topic, func);
+        subscribers[topic].forEach((_worker) => {
+          subscribeTopic(topic, _worker.func, _worker.options);
         });
       }
     }
@@ -121,23 +125,25 @@ export const connect = function() {
     });
   };
 
-  const subscribeWorker = function(routingKey: string, func: Worker) {
+  const subscribeWorker =
+      function(routingKey: string, func: Worker, options: WorkerOptions) {
     const q = connection.queue(routingKey, { autoDelete: false, durable: true },
       function(_info: amqp.QueueCallback) {
         q.subscribe({ ack: true, prefetchCount: 1 },
           function(message, headers, deliveryInfo, ack) {
-            messageHandler(func, message, headers, deliveryInfo, ack);
+            messageHandler(func, message, headers, deliveryInfo, ack, options);
           });
     });
   };
 
-  const subscribeTopic = function(topic: string, func: Worker) {
+  const subscribeTopic =
+      function(topic: string, func: Worker, options: WorkerOptions) {
     const q = connection.queue(topic, { autoDelete: false, durable: true },
       function(_info: amqp.QueueCallback) {
         q.bind("amq.topic", topic);
         q.subscribe({ ack: true, prefetchCount: 1 },
           function(message, headers, deliveryInfo, ack) {
-            messageHandler(func, message, headers, deliveryInfo, ack);
+            messageHandler(func, message, headers, deliveryInfo, ack, options);
           });
     });
   };
@@ -147,8 +153,14 @@ export const connect = function() {
       message: any,
       headers: Headers,
       deliveryInfo: amqp.DeliveryInfo,
-      ack: amqp.Ack) {
-    const acknowledge = acknowledgeHandler.bind(ack);
+      ack: amqp.Ack,
+      options: WorkerOptions) {
+    if (options.acknowledgeOnReceipt) {
+      acknowledgeHandler.call(ack);
+    }
+    const acknowledge = options.acknowledgeOnReceipt ?
+      ((error?: Error) => { logger(error); }) :
+      acknowledgeHandler.bind(ack);
     const replyTo = (deliveryInfo as any).replyTo;
     const correlationId = (deliveryInfo as any).correlationId;
     try {
@@ -252,9 +264,13 @@ export const enqueue = function(
   });
 };
 
-export const worker = function(routingKey: string, func: Worker) {
+export const worker =
+    function(routingKey: string, func: Worker, options?: WorkerOptions) {
   workers[routingKey] = workers[routingKey] || [];
-  workers[routingKey].push(func);
+  workers[routingKey].push({
+    func,
+    options: options ? options : { acknowledgeOnReceipt: false }
+  });
 };
 
 // == RPC CALL ==
@@ -320,7 +336,11 @@ export const publish = function(
   });
 };
 
-export const subscribe = function(topic: string, func: Worker) {
+export const subscribe =
+    function(topic: string, func: Worker, options?: WorkerOptions) {
   subscribers[topic] = subscribers[topic] || [];
-  subscribers[topic].push(func);
+  subscribers[topic].push({
+    func,
+    options: options ? options : { acknowledgeOnReceipt: false }
+  });
 };
