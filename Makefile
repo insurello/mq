@@ -6,7 +6,7 @@ SRC=src/**.ts
 all: setup lint build
 
 build: $(SRC)
-	$(BIN)/tsc --outDir dist --project . --pretty
+	$(BIN)/tsc --project . --pretty --declaration
 
 lint: $(SRC)
 	$(BIN)/tslint --project . --format codeFrame

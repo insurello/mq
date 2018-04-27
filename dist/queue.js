@@ -98,10 +98,10 @@ exports.connect = function () {
         });
     };
     const messageHandler = function (workerFunc, message, headers, deliveryInfo, ack, options) {
-        if (options.acknowledgeOnReciept) {
+        if (options.acknowledgeOnReceipt) {
             acknowledgeHandler.call(ack);
         }
-        const acknowledge = options.acknowledgeOnReciept ?
+        const acknowledge = options.acknowledgeOnReceipt ?
             ((error) => { exports.logger(error); }) :
             acknowledgeHandler.bind(ack);
         const replyTo = deliveryInfo.replyTo;
@@ -198,7 +198,7 @@ exports.worker = function (routingKey, func, options) {
     workers[routingKey] = workers[routingKey] || [];
     workers[routingKey].push({
         func,
-        options: options ? options : { acknowledgeOnReciept: false }
+        options: options ? options : { acknowledgeOnReceipt: false }
     });
 };
 exports.rpc = function (routingKey, data, headers, ttl) {
@@ -257,6 +257,6 @@ exports.subscribe = function (topic, func, options) {
     subscribers[topic] = subscribers[topic] || [];
     subscribers[topic].push({
         func,
-        options: options ? options : { acknowledgeOnReciept: false }
+        options: options ? options : { acknowledgeOnReceipt: false }
     });
 };
