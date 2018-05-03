@@ -4,6 +4,9 @@
   "description": "Message queue library for RPC and PUB/SUB over AMQP.",
   "main": "./dist/queue.js",
   "types": "./dist/queue.d.ts",
+  "bin": {
+    "rpc": "./bin/rpc"
+  },
   "scripts": {
     "test": "make test",
     "compile": "make",
