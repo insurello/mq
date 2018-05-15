@@ -198,7 +198,7 @@ export const connect = function() {
       const options: amqp.ExchangePublishOptions = {
         contentType: "application/json",
         headers: headers ? headers : {},
-        correlationId
+        correlationId: correlationId ? correlationId : uuidv4()
       };
       connection.publish(replyTo, value, options,
         function(err?: boolean, msg?: string) {

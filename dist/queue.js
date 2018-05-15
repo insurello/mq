@@ -138,7 +138,7 @@ exports.connect = function () {
             const options = {
                 contentType: "application/json",
                 headers: headers ? headers : {},
-                correlationId
+                correlationId: correlationId ? correlationId : uuidv4()
             };
             connection.publish(replyTo, value, options, function (err, msg) {
                 if (err) {
