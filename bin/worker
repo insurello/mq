@@ -14,15 +14,11 @@ program
     const payload = program.data ? JSON.parse(program.data) : {};
     const ttl = program.ttl ? parseInt(program.ttl) : undefined;
     if (routingKey) {
+      mq.worker(routingKey, (a,b,c) => {
+        console.log(a);
+        return Promise.resolve(payload);
+      });
       mq.connect();
-      const interval = setInterval(() => {
-        if (mq.isConnected()) {
-          clearInterval(interval);
-          mq.worker(routingKey, () => {
-            return Promise.resolve(payload);
-          });
-        }
-      }, 100);
     } else {
       program.outputHelp();
     }
