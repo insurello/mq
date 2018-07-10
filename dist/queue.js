@@ -164,11 +164,18 @@ exports.connect = function () {
             release();
         });
     };
+    const removeEmptyOptions = (obj) => {
+        Object.keys(obj).forEach(key => (obj[key] && typeof obj[key] === "object") &&
+            removeEmptyOptions(obj[key]) ||
+            (obj[key] === undefined) && delete obj[key]);
+        return obj;
+    };
     const internalPublish = function (msg) {
         return new Promise((resolve, reject) => {
             const exchange = connection
                 .exchange(msg.exchangeName, { confirm: true }, function () {
-                exchange.publish(msg.routingKey, msg.data, msg.options, function (failed, errorMessage) {
+                const options = removeEmptyOptions(msg.options);
+                exchange.publish(msg.routingKey, msg.data, options, function (failed, errorMessage) {
                     if (failed) {
                         reject(new Error(errorMessage));
                     }

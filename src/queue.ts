@@ -227,11 +227,21 @@ export const connect = function() {
       });
   };
 
+  const removeEmptyOptions = (obj: any) => {
+    Object.keys(obj).forEach(key =>
+      (obj[key] && typeof obj[key] === "object") &&
+        removeEmptyOptions(obj[key]) ||
+          (obj[key] === undefined) && delete obj[key]
+    );
+    return obj;
+  };
+
   const internalPublish = function(msg: Message) {
     return new Promise((resolve, reject) => {
       const exchange = connection
         .exchange(msg.exchangeName, { confirm: true }, function() {
-          exchange.publish(msg.routingKey, msg.data, msg.options,
+          const options = removeEmptyOptions(msg.options);
+          exchange.publish(msg.routingKey, msg.data, options,
             function(failed, errorMessage) {
               if (failed) {
                 reject(new Error(errorMessage));
