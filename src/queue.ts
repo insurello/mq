@@ -333,6 +333,7 @@ export const rpc = function(
       contentType: "application/json",
       replyTo: replyToQueue,
       correlationId,
+      messageId: correlationId,
       expiration: _ttl.toString(),
       headers: headers ? headers : {}
     };
