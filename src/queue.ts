@@ -7,7 +7,7 @@ const defaultTimeout = 30 * 1000; // 30 seconds
 type Logger =
   (message?: any, ...optionalParams: any[]) => void;
 
-let logger: Logger = console.log;
+let logger: Logger = console.log; // tslint:disable-line
 
 export const setLogger = (newLogger: Logger) => {
   logger = newLogger;

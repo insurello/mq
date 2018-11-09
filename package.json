@@ -40,6 +40,6 @@
     "@types/uuid": "^3.4.3",
     "tslint": "^5.8.0",
     "tslint-insurello": "git+https://github.com/insurello/tslint-insurello.git",
-    "typescript": "^2.6.1"
+    "typescript": "^3.0.1"
   }
 }
