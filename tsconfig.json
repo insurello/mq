@@ -1,32 +1,31 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-        "outDir": "dist",
-        "target": "es2015",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noEmitOnError": true,
-        "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "alwaysStrict": true,
-        "forceConsistentCasingInFileNames": true,
-        "strictNullChecks": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "sourceMap": false,
-        "lib": [
-          "es2015",
-          "es2015.promise"
-        ]
-    },
-    "include": [
-        "./src/*.ts"
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "lib": [
+      "es2015",
+      "es2015.promise"
     ]
+  },
+  "include": [
+    "./src/*.ts",
+    "./test/*.ts"
+  ]
 }

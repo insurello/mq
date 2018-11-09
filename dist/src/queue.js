@@ -53,7 +53,7 @@ exports.connect = function () {
     connection.on("ready", function () {
         for (const routingKey in workers) {
             if (workers.hasOwnProperty(routingKey)) {
-                workers[routingKey].forEach((_worker) => {
+                workers[routingKey].forEach(_worker => {
                     subscribeWorker(routingKey, _worker.func, _worker.options);
                 });
             }
@@ -62,7 +62,7 @@ exports.connect = function () {
     connection.on("ready", function () {
         for (const topic in subscribers) {
             if (subscribers.hasOwnProperty(topic)) {
-                subscribers[topic].forEach((_worker) => {
+                subscribers[topic].forEach(_worker => {
                     subscribeTopic(topic, _worker.func, _worker.options);
                 });
             }
@@ -97,7 +97,7 @@ exports.connect = function () {
                 const start = startTime();
                 messageHandler(func, message, headers, deliveryInfo, ack, options)
                     .then(() => logger("MSG", ack.routingKey, green("OK"), elapsed(start)))
-                    .catch((err) => logger("MSG", ack.routingKey, red("ERR"), elapsed(start), err));
+                    .catch(err => logger("MSG", ack.routingKey, red("ERR"), elapsed(start), err));
             });
         });
     };
@@ -108,7 +108,7 @@ exports.connect = function () {
                 const start = startTime();
                 messageHandler(func, message, headers, deliveryInfo, ack, options)
                     .then(() => logger("SUB", ack.routingKey, green("OK"), elapsed(start)))
-                    .catch((err) => logger("SUB", ack.routingKey, red("ERR"), elapsed(start), err));
+                    .catch(err => logger("SUB", ack.routingKey, red("ERR"), elapsed(start), err));
             });
         });
     };
@@ -116,19 +116,21 @@ exports.connect = function () {
         if (options.acknowledgeOnReceipt) {
             acknowledgeHandler.call(ack);
         }
-        const acknowledge = options.acknowledgeOnReceipt ?
-            (() => { }) : acknowledgeHandler.bind(ack);
+        const acknowledge = options.acknowledgeOnReceipt
+            ? () => {
+            }
+            : acknowledgeHandler.bind(ack);
         const replyTo = deliveryInfo.replyTo;
         const correlationId = deliveryInfo.correlationId;
         try {
             const result = workerFunc(message, headers);
             if (result && result.then) {
                 return Promise.resolve(result)
-                    .then((value) => {
+                    .then(value => {
                     sendReply(replyTo, correlationId, value, headers);
                     acknowledge();
                 })
-                    .catch((err) => {
+                    .catch(err => {
                     acknowledge(err);
                     return Promise.reject(err);
                 });
@@ -169,29 +171,26 @@ exports.connect = function () {
         if (mutex.isLocked()) {
             return;
         }
-        mutex
-            .acquire()
-            .then((release) => {
+        mutex.acquire().then(release => {
             while (fifoQueue.length > 0) {
                 const msg = fifoQueue.shift();
                 if (msg) {
-                    internalPublish(msg)
-                        .catch(logger);
+                    internalPublish(msg).catch(logger);
                 }
             }
             release();
         });
     };
     const removeEmptyOptions = (obj) => {
-        Object.keys(obj).forEach(key => (obj[key] && typeof obj[key] === "object") &&
-            removeEmptyOptions(obj[key]) ||
-            (obj[key] === undefined) && delete obj[key]);
+        Object.keys(obj).forEach(key => (obj[key] &&
+            typeof obj[key] === "object" &&
+            removeEmptyOptions(obj[key])) ||
+            (obj[key] === undefined && delete obj[key]));
         return obj;
     };
     const internalPublish = function (msg) {
         return new Promise((resolve, reject) => {
-            const exchange = connection
-                .exchange(msg.exchangeName, { confirm: true }, function () {
+            const exchange = connection.exchange(msg.exchangeName, { confirm: true }, function () {
                 const options = removeEmptyOptions(msg.options);
                 exchange.publish(msg.routingKey, msg.data, options, function (failed, errorMessage) {
                     if (failed) {
@@ -287,3 +286,4 @@ exports.subscribe = function (topic, func, options) {
         options: options ? options : { acknowledgeOnReceipt: true }
     });
 };
+//# sourceMappingURL=queue.js.map

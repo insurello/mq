@@ -1,18 +1,26 @@
 BIN=node_modules/.bin
 SRC=src/**.ts
+TEST=test/*_test.ts
 
-.PHONY : all build test setup clean clean-deps
+.PHONY : all build test coverage setup clean clean-deps
 
-all: setup lint build
+all: setup lint build test
 
 build: $(SRC)
-	$(BIN)/tsc --project . --pretty --declaration
+	$(BIN)/tsc --outDir dist --project . --pretty
 
 lint: $(SRC)
+	$(BIN)/prettier -l $(SRC) $(TEST)
 	$(BIN)/tslint --project . --format codeFrame
 
-test: lint build test/*_test.ts
-	$(BIN)/mocha -r ts-node/register test/*_test.ts
+format: $(SRC)
+	$(BIN)/prettier --write $(SRC) $(TEST)
+
+test: $(TEST)
+	$(BIN)/mocha
+
+coverage: $(SRC) $(TEST)
+	$(BIN)/nyc $(BIN)/mocha
 
 setup: node_modules
 

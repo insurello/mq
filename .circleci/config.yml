@@ -1,0 +1,12 @@
+version: 2.0
+jobs:
+  build:
+    machine:
+        enabled: true
+    working_directory: ~/insurello
+    steps:
+      - checkout
+      - run: make setup
+      - run: make lint
+      - run: make build
+      - run: make test
