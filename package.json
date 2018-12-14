@@ -2,8 +2,8 @@
   "name": "mq",
   "version": "1.2.0",
   "description": "Message queue library for RPC and PUB/SUB over AMQP.",
-  "main": "./dist/src/queue.js",
-  "types": "./dist/src/queue.d.ts",
+  "main": "./dist/src/mq.js",
+  "types": "./dist/src/mq.d.ts",
   "bin": {
     "rpc": "./bin/rpc"
   },
@@ -30,18 +30,16 @@
   },
   "homepage": "https://github.com/insurello/mq#readme",
   "dependencies": {
-    "amqp": "^0.2.6",
-    "async-mutex": "^0.1.3",
-    "uuid": "^3.2.1"
+    "io-ts": "^1.4.2",
+    "io-ts-reporters": "0.0.21",
+    "winston": "^3.1.0"
   },
   "devDependencies": {
-    "@types/amqp": "^0.2.3",
     "@types/chai": "^4.1.2",
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.0.0",
     "@types/node": "^9.6.7",
     "@types/sinon": "^5.0.2",
-    "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "istanbul": "^0.4.5",
