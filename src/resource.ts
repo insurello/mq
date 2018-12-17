@@ -5,7 +5,7 @@ import { Logger, logger } from "./logger";
 import { Headers, Request } from "./request";
 import { response } from "./response";
 
-interface Resource<T, O, C> {
+export interface Resource<T, O, C> {
   type: [t.Type<T>, t.Type<O>];
   init: (options: any) => PromiseLike<C> | C;
   authorized: (headers: Headers, context: C) => PromiseLike<C> | C;

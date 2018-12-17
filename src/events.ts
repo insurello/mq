@@ -8,7 +8,7 @@ const defaultEventField = "event";
 
 type Callback<T, C> = (data: T, context: C) => PromiseLike<void> | void;
 
-type Events<T, C> = SingleCallbackStyle<T, C> | EventCallbackStyle<T, C>;
+export type Events<T, C> = SingleCallbackStyle<T, C> | EventCallbackStyle<T, C>;
 
 interface SingleCallbackStyle<T, C> {
   type: t.Type<T>;
