@@ -1,7 +1,7 @@
 {
   "name": "mq",
-  "version": "1.2.0",
-  "description": "Message queue library for RPC and PUB/SUB over AMQP.",
+  "version": "2.0.0",
+  "description": "A declarative abstraction layer for writing event handlers.",
   "main": "./dist/src/mq.js",
   "types": "./dist/src/mq.d.ts",
   "bin": {
@@ -24,7 +24,7 @@
     "worker"
   ],
   "author": "Niklas Holmgren",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/insurello/mq/issues"
   },

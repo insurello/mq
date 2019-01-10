@@ -1,5 +1,15 @@
 # MQ
 
+A declarative abstraction layer for writing event handlers.
+
+## Features
+
+- Three basic event handler types (events, service and resource) for different use cases.
+- A declarative callback/promise based API that hides potentially complex details like error handling and serializations.
+- Statically typed validation of input/output messages using the `io-ts` library.
+- Not tied to any specific back-end and can be used with any queue based protocol (currently only supports AMQP).
+- Ideal for building event sourced micro-services.
+
 ## Handler types
 
 ### Events
