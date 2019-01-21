@@ -8,17 +8,19 @@ const defaultEventField = "event";
 
 type Callback<T, C> = (data: T, context: C) => PromiseLike<void> | void;
 
-export type Events<T, C> = SingleCallbackStyle<T, C> | EventCallbackStyle<T, C>;
+export type Events<T, C, O> =
+  | SingleCallbackStyle<T, C, O>
+  | EventCallbackStyle<T, C, O>;
 
-interface SingleCallbackStyle<T, C> {
-  type: t.Type<T>;
+interface SingleCallbackStyle<T, C, O> {
+  type: t.Type<T, O>;
   init: (options: any) => PromiseLike<C> | C;
   event: Callback<T, C>;
   logger?: Logger;
 }
 
-interface EventCallbackStyle<T, C> {
-  type: t.Type<T>;
+interface EventCallbackStyle<T, C, O> {
+  type: t.Type<T, O>;
   init: (options: any) => PromiseLike<C> | C;
   event?: string;
   events: {
@@ -27,7 +29,7 @@ interface EventCallbackStyle<T, C> {
   logger?: Logger;
 }
 
-export const events = <T, C = any>(desc: Events<T, C>) => {
+export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
     return Promise.resolve(desc.init(options))
@@ -43,8 +45,8 @@ export const events = <T, C = any>(desc: Events<T, C>) => {
   };
 };
 
-const eventHandler = <T, C>(
-  desc: EventCallbackStyle<T, C>,
+const eventHandler = <T, C, O>(
+  desc: EventCallbackStyle<T, C, O>,
   req: Request,
   data: T,
   context: C
@@ -57,8 +59,8 @@ const eventHandler = <T, C>(
     ? desc.events[req.body[desc.event || defaultEventField]](data, context)
     : Promise.reject();
 
-const isEventCallbackStyle = <T, C>(
-  desc: Events<T, C>
-): desc is EventCallbackStyle<T, C> =>
+const isEventCallbackStyle = <T, C, O>(
+  desc: Events<T, C, O>
+): desc is EventCallbackStyle<T, C, O> =>
   (typeof desc.event === "string" || desc.event === undefined) &&
-  (desc as EventCallbackStyle<T, C>).events !== undefined;
+  (desc as EventCallbackStyle<T, C, O>).events !== undefined;
