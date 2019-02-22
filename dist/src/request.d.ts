@@ -8,6 +8,8 @@ export interface Request {
         replyTo?: string;
     };
     body: any;
+    queue?: string;
+    type?: string;
     ack: () => void;
     nack: () => void;
     reject: () => void;
