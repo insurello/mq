@@ -10,6 +10,8 @@ export interface Request {
   };
 
   body: any;
+  queue?: string;
+  type?: string;
 
   ack: () => void;
   nack: () => void;
