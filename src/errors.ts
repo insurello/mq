@@ -18,7 +18,7 @@ const isError = (err: any): err is ErrorDescription =>
 export const errorHandler = (req: Request, logger: Logger) => (
   err?: unknown
 ) => {
-  const errorReq = {
+  const requestInfo = {
     type: req.type,
     queue: req.queue,
     properties: req.properties
@@ -26,15 +26,15 @@ export const errorHandler = (req: Request, logger: Logger) => (
 
   if (err instanceof Error) {
     req.nack();
-    logger.error(err.stack ? err.stack : err.message, errorReq);
+    logger.error(err.stack ? err.stack : err.message, requestInfo);
   } else if (isError(err)) {
     response(req)(err, { "x-error": err.error });
-    logger.warn(`${err}`, errorReq);
+    logger.warn(`${err}`, requestInfo);
   } else if (typeof err === "string") {
     response(req)({ error: err }, { "x-error": err });
-    logger.warn(`${err}`, errorReq);
+    logger.warn(`${err}`, requestInfo);
   } else {
     req.reject();
-    logger.verbose("rejected", errorReq);
+    logger.verbose("rejected", requestInfo);
   }
 };
