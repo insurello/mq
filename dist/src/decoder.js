@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const E = require("fp-ts/lib/Either");
-const io_ts_reporters_1 = require("./io-ts-reporters");
+const io_ts_reporters_1 = require("io-ts-reporters");
 exports.decode = (decoder, data) => {
     const result = decoder.decode(data);
     if (E.isRight(result)) {

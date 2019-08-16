@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const t = require("io-ts");
+const _reporters = require("io-ts-reporters");
 const _events = require("./events");
-const _reporters = require("./io-ts-reporters");
 const _resource = require("./resource");
 const _service = require("./service");
 exports.type = t.type;
