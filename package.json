@@ -1,6 +1,6 @@
 {
   "name": "mq",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A declarative abstraction layer for writing event handlers.",
   "main": "./dist/src/mq.js",
   "types": "./dist/src/mq.d.ts",
@@ -32,6 +32,7 @@
   "peerDependencies": {
     "fp-ts": "^2.0.0",
     "io-ts": "^2.0.0",
+    "io-ts-reporters": "^1.0.0",
     "winston": "^3.1.0"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "chai-as-promised": "^7.1.1",
     "fp-ts": "^2.0.3",
     "io-ts": "^2.0.0",
+    "io-ts-reporters": "^1.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",

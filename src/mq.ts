@@ -1,6 +1,6 @@
 import * as t from "io-ts";
+import * as _reporters from "io-ts-reporters";
 import * as _events from "./events";
-import * as _reporters from "./io-ts-reporters";
 import * as _resource from "./resource";
 import * as _service from "./service";
 
