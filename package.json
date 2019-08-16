@@ -1,6 +1,6 @@
 {
   "name": "mq",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "A declarative abstraction layer for writing event handlers.",
   "main": "./dist/src/mq.js",
   "types": "./dist/src/mq.d.ts",
