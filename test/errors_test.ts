@@ -97,8 +97,8 @@ describe("errors", () => {
       it("should reject the request", () =>
         req.reject.called.should.equal(true));
 
-      it("should log a verbose message", () =>
-        (logger.verbose as sinon.SinonStub).called.should.equal(true));
+      it("should log an error message", () =>
+        (logger.error as sinon.SinonStub).called.should.equal(true));
     });
   });
 });

@@ -35,6 +35,6 @@ export const errorHandler = (req: Request, logger: Logger) => (
     logger.warn(`${err}`, requestInfo);
   } else {
     req.reject();
-    logger.verbose("rejected", requestInfo);
+    logger.error("rejected", requestInfo);
   }
 };
