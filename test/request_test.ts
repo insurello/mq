@@ -17,8 +17,10 @@ describe("Request", () => {
   describe("extractBasicLogInfo()", () => {
     describe("with valid data", () => {
       it("should extract basic logging information from a message", () => {
+        const timestamp = Date.now();
         const input: Request = {
           properties: { headers: { foo: "bar" } },
+          metadata: { duration: { start: timestamp - 10 } },
           queue: "test.queue",
           body: null,
           ack: returnVoid,
@@ -30,11 +32,14 @@ describe("Request", () => {
         const expected = {
           message: "test",
           properties: { headers: { foo: "bar" } },
-          queue: "test.queue"
+          queue: "test.queue",
+          duration: 10
         };
-        return extractDurationLogInfo(input, "test", 0).should.deep.equal(
-          expected
-        );
+        return extractDurationLogInfo(
+          input,
+          "test",
+          timestamp
+        ).should.deep.equal(expected);
       });
 
       it("should filter out authorization information", () => {

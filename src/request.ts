@@ -14,7 +14,7 @@ export interface Request {
   type?: string;
 
   metadata?: {
-    duration?: { start?: number; end?: number };
+    duration?: { start?: number };
   };
 
   ack: () => void;
