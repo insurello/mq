@@ -2,7 +2,7 @@ import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
 import { Logger, logger } from "./logger";
-import { Headers, Request, extractBasicLogInfo } from "./request";
+import { extractBasicLogInfo, Headers, Request } from "./request";
 import { response } from "./response";
 
 export interface Service<T, C, O> {
