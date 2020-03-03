@@ -11,21 +11,15 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractDurationLogInfo = (request, message, endTimestamp) => {
-    var _a, _b;
-    const _c = request.properties.headers, { authorization } = _c, filteredHeaders = __rest(_c, ["authorization"]);
-    const _d = request.properties, { headers } = _d, filteredProperties = __rest(_d, ["headers"]);
-    const duration = ((_b = (_a = request.metadata) === null || _a === void 0 ? void 0 : _a.duration) === null || _b === void 0 ? void 0 : _b.start) ? endTimestamp - request.metadata.duration.start
-        : undefined;
-    const logInfo = {
+exports.createDurationLogInfo = (request, message, startTimestamp, endTimestamp) => {
+    const _a = request.properties.headers, { authorization } = _a, filteredHeaders = __rest(_a, ["authorization"]);
+    const _b = request.properties, { headers } = _b, filteredProperties = __rest(_b, ["headers"]);
+    const duration = endTimestamp - startTimestamp;
+    return {
         message,
         properties: Object.assign({ headers: filteredHeaders }, filteredProperties),
-        queue: request.queue
+        queue: request.queue,
+        duration
     };
-    return duration ? Object.assign(Object.assign({}, logInfo), { duration }) : logInfo;
-};
-exports.initDurationTiming = (request, startTimestamp) => {
-    request.metadata = { duration: { start: startTimestamp } };
-    return;
 };
 //# sourceMappingURL=request.js.map

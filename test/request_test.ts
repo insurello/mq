@@ -1,10 +1,6 @@
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-import {
-  extractDurationLogInfo,
-  initDurationTiming,
-  Request
-} from "../src/request";
+import { createDurationLogInfo, Request } from "../src/request";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -20,7 +16,6 @@ describe("Request", () => {
         const timestamp = Date.now();
         const input: Request = {
           properties: { headers: { foo: "bar" } },
-          metadata: { duration: { start: timestamp - 10 } },
           queue: "test.queue",
           body: null,
           ack: returnVoid,
@@ -35,9 +30,11 @@ describe("Request", () => {
           queue: "test.queue",
           duration: 10
         };
-        return extractDurationLogInfo(
+
+        return createDurationLogInfo(
           input,
           "test",
+          timestamp - 10,
           timestamp
         ).should.deep.equal(expected);
       });
@@ -56,32 +53,12 @@ describe("Request", () => {
         const expected = {
           message: "test",
           properties: { headers: {} },
-          queue: "test.queue"
+          queue: "test.queue",
+          duration: 0
         };
-        return extractDurationLogInfo(input, "test", 0).should.deep.equal(
+        return createDurationLogInfo(input, "test", 0, 0).should.deep.equal(
           expected
         );
-      });
-
-      it("should init duration timinig info", () => {
-        const input: Request = {
-          properties: { headers: { authorization: "fghjklkjhgfghj" } },
-          queue: "test.queue",
-          body: null,
-          ack: returnVoid,
-          nack: returnVoid,
-          reject: returnVoid,
-          reply: returnVoid
-        };
-
-        const ts = Date.now();
-
-        const expected = {
-          metadata: { duration: { start: ts } },
-          ...input
-        };
-        initDurationTiming(input, ts);
-        return input.should.deep.equal(expected);
       });
     });
   });

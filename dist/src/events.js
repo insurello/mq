@@ -8,14 +8,14 @@ const defaultEventField = "event";
 exports.events = (desc) => {
     const _logger = desc.logger ? desc.logger : logger_1.logger;
     return (options) => (req) => {
-        request_1.initDurationTiming(req, Date.now());
+        const durationStart = Date.now();
         return Promise.resolve(desc.init(options))
             .then(context => decoder_1.decode(desc.type, req.body).then(data => isEventCallbackStyle(desc)
             ? Promise.resolve(eventHandler(desc, req, data, context))
             : Promise.resolve(desc.event(data, context))))
             .then(() => req.ack())
             .then(success => {
-            _logger.info(request_1.extractDurationLogInfo(req, "Event processed", Date.now()));
+            _logger.info(request_1.createDurationLogInfo(req, "Event processed", durationStart, Date.now()));
             return success;
         }, errors_1.errorHandler(req, _logger));
     };

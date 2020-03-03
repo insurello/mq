@@ -2,7 +2,7 @@ import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
 import { Logger, logger } from "./logger";
-import { extractDurationLogInfo, Request, initDurationTiming } from "./request";
+import { createDurationLogInfo, Request } from "./request";
 
 const defaultEventField = "event";
 
@@ -32,7 +32,7 @@ interface EventCallbackStyle<T, C, O> {
 export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
-    initDurationTiming(req, Date.now());
+    const durationStart: number = Date.now();
     return Promise.resolve(desc.init(options))
       .then(context =>
         decode(desc.type, req.body).then(data =>
@@ -44,7 +44,12 @@ export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
       .then(() => req.ack())
       .then(success => {
         _logger.info(
-          extractDurationLogInfo(req, "Event processed", Date.now())
+          createDurationLogInfo(
+            req,
+            "Event processed",
+            durationStart,
+            Date.now()
+          )
         );
         return success;
       }, errorHandler(req, _logger));
