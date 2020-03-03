@@ -45,7 +45,10 @@ describe("errors", () => {
 
     describe("with an error object", () => {
       beforeEach(() =>
-        errorHandler(req, logger)({
+        errorHandler(
+          req,
+          logger
+        )({
           error: "test",
           error_description: "Test"
         })
