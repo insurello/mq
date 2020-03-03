@@ -19,11 +19,11 @@ exports.errorHandler = (req, logger) => (err) => {
     }
     else if (isError(err)) {
         response_1.response(req)(err, { "x-error": err.error });
-        logger.warn(`${err}`, requestInfo);
+        logger.warn(JSON.stringify(err), requestInfo);
     }
     else if (typeof err === "string") {
         response_1.response(req)({ error: err }, { "x-error": err });
-        logger.warn(`${err}`, requestInfo);
+        logger.warn(JSON.stringify(err), requestInfo);
     }
     else {
         req.reject();

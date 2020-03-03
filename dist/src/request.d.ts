@@ -10,6 +10,12 @@ export interface Request {
     body: any;
     queue?: string;
     type?: string;
+    metadata?: {
+        duration?: {
+            start?: number;
+            end?: number;
+        };
+    };
     ack: () => void;
     nack: () => void;
     reject: () => void;
@@ -21,7 +27,18 @@ export interface ReplyOptions {
     contentType?: string;
     headers?: Headers;
 }
-export declare const extractBasicLogInfo: (request: Request, message: string) => {
+export declare const extractDurationLogInfo: (request: Request, message: string, endTimestamp: number) => {
+    message: string;
+    properties: {
+        type?: string | undefined;
+        replyTo?: string | undefined;
+        headers: {
+            [key: string]: unknown;
+        };
+    };
+    queue: string | undefined;
+} | {
+    duration: number;
     message: string;
     properties: {
         type?: string | undefined;
@@ -32,3 +49,4 @@ export declare const extractBasicLogInfo: (request: Request, message: string) =>
     };
     queue: string | undefined;
 };
+export declare const initDurationTiming: (request: Request, startTimestamp: number) => void;

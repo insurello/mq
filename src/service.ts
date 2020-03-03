@@ -2,7 +2,12 @@ import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
 import { Logger, logger } from "./logger";
-import { extractBasicLogInfo, Headers, Request } from "./request";
+import {
+  extractDurationLogInfo,
+  Headers,
+  Request,
+  initDurationTiming
+} from "./request";
 import { response } from "./response";
 
 export interface Service<T, C, O> {
@@ -19,7 +24,7 @@ export const service = <T = t.mixed, C = any, O = T>(
 ) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
-    _logger.info(extractBasicLogInfo(req, "Request recevied"));
+    initDurationTiming(req, Date.now());
     return Promise.resolve(desc.init(options))
       .then(context => desc.authorized(req.properties.headers, context))
       .then(context => desc.forbidden(req.properties.headers, context))
@@ -27,7 +32,7 @@ export const service = <T = t.mixed, C = any, O = T>(
       .then(result => decode(desc.type, result))
       .then(response(req))
       .then(success => {
-        _logger.info(extractBasicLogInfo(req, "Response sent"));
+        _logger.info(extractDurationLogInfo(req, "Response sent", Date.now()));
         return success;
       }, errorHandler(req, _logger));
   };

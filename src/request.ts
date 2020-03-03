@@ -13,6 +13,10 @@ export interface Request {
   queue?: string;
   type?: string;
 
+  metadata?: {
+    duration?: { start?: number; end?: number };
+  };
+
   ack: () => void;
   nack: () => void;
   reject: () => void;
@@ -26,12 +30,30 @@ export interface ReplyOptions {
   headers?: Headers;
 }
 
-export const extractBasicLogInfo = (request: Request, message: string) => {
+export const extractDurationLogInfo = (
+  request: Request,
+  message: string,
+  endTimestamp: number
+) => {
   const { authorization, ...filteredHeaders } = request.properties.headers;
   const { headers, ...filteredProperties } = request.properties;
-  return {
+  const duration: number | undefined = request.metadata?.duration?.start
+    ? endTimestamp - request.metadata.duration.start
+    : undefined;
+
+  const logInfo = {
     message,
     properties: { headers: filteredHeaders, ...filteredProperties },
     queue: request.queue
   };
+
+  return duration ? { ...logInfo, duration } : logInfo;
+};
+
+export const initDurationTiming = (
+  request: Request,
+  startTimestamp: number
+): void => {
+  request.metadata = { duration: { start: startTimestamp } };
+  return;
 };

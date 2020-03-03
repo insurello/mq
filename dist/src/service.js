@@ -8,7 +8,7 @@ const response_1 = require("./response");
 exports.service = (desc) => {
     const _logger = desc.logger ? desc.logger : logger_1.logger;
     return (options) => (req) => {
-        _logger.info(request_1.extractBasicLogInfo(req, "Request recevied"));
+        request_1.initDurationTiming(req, Date.now());
         return Promise.resolve(desc.init(options))
             .then(context => desc.authorized(req.properties.headers, context))
             .then(context => desc.forbidden(req.properties.headers, context))
@@ -16,7 +16,7 @@ exports.service = (desc) => {
             .then(result => decoder_1.decode(desc.type, result))
             .then(response_1.response(req))
             .then(success => {
-            _logger.info(request_1.extractBasicLogInfo(req, "Response sent"));
+            _logger.info(request_1.extractDurationLogInfo(req, "Response sent", Date.now()));
             return success;
         }, errors_1.errorHandler(req, _logger));
     };
