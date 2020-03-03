@@ -21,3 +21,12 @@ export interface ReplyOptions {
     contentType?: string;
     headers?: Headers;
 }
+export declare const extractBasicLogInfo: (request: Request, message: string) => {
+    message: string;
+    properties: {
+        headers: Headers;
+        type?: string | undefined;
+        replyTo?: string | undefined;
+    };
+    queue: string | undefined;
+};
