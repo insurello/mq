@@ -21,7 +21,7 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
 ) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
-    const durationStart: number = Date.now();
+    const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
       .then(context => desc.authorized(req.properties.headers, context))
       .then(context => desc.exists(req.properties.headers, context))

@@ -32,7 +32,7 @@ interface EventCallbackStyle<T, C, O> {
 export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
-    const durationStart: number = Date.now();
+    const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
       .then(context =>
         decode(desc.type, req.body).then(data =>
