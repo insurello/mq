@@ -26,7 +26,7 @@ export declare const extractBasicLogInfo: (request: Request, message: string) =>
     properties: {
         type?: string | undefined;
         replyTo?: string | undefined;
-        filteredHeaders: {
+        headers: {
             [key: string]: unknown;
         };
     };

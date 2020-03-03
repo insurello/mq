@@ -16,7 +16,7 @@ exports.extractBasicLogInfo = (request, message) => {
     const _b = request.properties, { headers } = _b, filteredProperties = __rest(_b, ["headers"]);
     return {
         message,
-        properties: Object.assign({ filteredHeaders }, filteredProperties),
+        properties: Object.assign({ headers: filteredHeaders }, filteredProperties),
         queue: request.queue
     };
 };
