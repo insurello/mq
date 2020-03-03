@@ -25,3 +25,21 @@ export interface ReplyOptions {
   contentType?: string;
   headers?: Headers;
 }
+
+export const createDurationLogInfo = (
+  request: Request,
+  message: string,
+  startTimestamp: number,
+  endTimestamp: number
+) => {
+  const { authorization, ...filteredHeaders } = request.properties.headers;
+  const { headers, ...filteredProperties } = request.properties;
+  const duration: number = endTimestamp - startTimestamp;
+
+  return {
+    message,
+    properties: { headers: filteredHeaders, ...filteredProperties },
+    queue: request.queue,
+    duration
+  };
+};

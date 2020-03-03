@@ -2,7 +2,7 @@ import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
 import { Logger, logger } from "./logger";
-import { Headers, Request } from "./request";
+import { createDurationLogInfo, Headers, Request } from "./request";
 import { response } from "./response";
 
 export interface Resource<T, U, C, TO, UO> {
@@ -21,6 +21,7 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
 ) => {
   const _logger = desc.logger ? desc.logger : logger;
   return (options: any) => (req: Request) => {
+    const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
       .then(context => desc.authorized(req.properties.headers, context))
       .then(context => desc.exists(req.properties.headers, context))
@@ -33,6 +34,11 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
             .then(response(req))
         )
       )
-      .then(a => a, errorHandler(req, _logger));
+      .then(success => {
+        _logger.info(
+          createDurationLogInfo(req, "Response sent", durationStart, Date.now())
+        );
+        return success;
+      }, errorHandler(req, _logger));
   };
 };

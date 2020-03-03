@@ -29,10 +29,10 @@ export const errorHandler = (req: Request, logger: Logger) => (
     logger.error(err.stack ? err.stack : err.message, requestInfo);
   } else if (isError(err)) {
     response(req)(err, { "x-error": err.error });
-    logger.warn(`${err}`, requestInfo);
+    logger.warn(JSON.stringify(err), requestInfo);
   } else if (typeof err === "string") {
     response(req)({ error: err }, { "x-error": err });
-    logger.warn(`${err}`, requestInfo);
+    logger.warn(JSON.stringify(err), requestInfo);
   } else {
     req.reject();
     logger.verbose("rejected", requestInfo);

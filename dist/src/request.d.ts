@@ -21,3 +21,15 @@ export interface ReplyOptions {
     contentType?: string;
     headers?: Headers;
 }
+export declare const createDurationLogInfo: (request: Request, message: string, startTimestamp: number, endTimestamp: number) => {
+    message: string;
+    properties: {
+        type?: string | undefined;
+        replyTo?: string | undefined;
+        headers: {
+            [key: string]: unknown;
+        };
+    };
+    queue: string | undefined;
+    duration: number;
+};
