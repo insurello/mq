@@ -34,9 +34,9 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
             .then(response(req))
         )
       )
-      .then(_success => {
+      .then(success => {
         _logger.info(extractBasicLogInfo(req, "Response sent"));
-        return _success;
+        return success;
       }, errorHandler(req, _logger));
   };
 };

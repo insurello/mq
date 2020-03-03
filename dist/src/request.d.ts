@@ -24,9 +24,11 @@ export interface ReplyOptions {
 export declare const extractBasicLogInfo: (request: Request, message: string) => {
     message: string;
     properties: {
-        headers: Headers;
         type?: string | undefined;
         replyTo?: string | undefined;
+        filteredHeaders: {
+            [key: string]: unknown;
+        };
     };
     queue: string | undefined;
 };

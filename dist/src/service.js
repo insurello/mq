@@ -15,9 +15,9 @@ exports.service = (desc) => {
             .then(context => desc.response(context))
             .then(result => decoder_1.decode(desc.type, result))
             .then(response_1.response(req))
-            .then(_success => {
+            .then(success => {
             _logger.info(request_1.extractBasicLogInfo(req, "Response sent"));
-            return _success;
+            return success;
         }, errors_1.errorHandler(req, _logger));
     };
 };

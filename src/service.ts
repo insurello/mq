@@ -26,9 +26,9 @@ export const service = <T = t.mixed, C = any, O = T>(
       .then(context => desc.response(context))
       .then(result => decode(desc.type, result))
       .then(response(req))
-      .then(_success => {
+      .then(success => {
         _logger.info(extractBasicLogInfo(req, "Response sent"));
-        return _success;
+        return success;
       }, errorHandler(req, _logger));
   };
 };

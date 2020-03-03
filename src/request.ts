@@ -26,8 +26,12 @@ export interface ReplyOptions {
   headers?: Headers;
 }
 
-export const extractBasicLogInfo = (request: Request, message: string) => ({
-  message,
-  properties: request.properties,
-  queue: request.queue
-});
+export const extractBasicLogInfo = (request: Request, message: string) => {
+  const { authorization, ...filteredHeaders } = request.properties.headers;
+  const { headers, ...filteredProperties } = request.properties;
+  return {
+    message,
+    properties: { headers: filteredHeaders, ...filteredProperties },
+    queue: request.queue
+  };
+};

@@ -3,16 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const decoder_1 = require("./decoder");
 const errors_1 = require("./errors");
 const logger_1 = require("./logger");
+const request_1 = require("./request");
 const defaultEventField = "event";
 exports.events = (desc) => {
     const _logger = desc.logger ? desc.logger : logger_1.logger;
     return (options) => (req) => {
+        _logger.info(request_1.extractBasicLogInfo(req, "Event recevied"));
         return Promise.resolve(desc.init(options))
             .then(context => decoder_1.decode(desc.type, req.body).then(data => isEventCallbackStyle(desc)
             ? Promise.resolve(eventHandler(desc, req, data, context))
             : Promise.resolve(desc.event(data, context))))
             .then(() => req.ack())
-            .then(a => a, errors_1.errorHandler(req, _logger));
+            .then(success => {
+            _logger.info(request_1.extractBasicLogInfo(req, "Event processed"));
+            return success;
+        }, errors_1.errorHandler(req, _logger));
     };
 };
 const eventHandler = (desc, req, data, context) => (typeof desc.event === "string" || desc.event === undefined) &&
