@@ -11,4 +11,4 @@ export interface Resource<T, U, C, TO, UO> {
     response: (context: C) => PromiseLike<U> | U;
     logger?: Logger;
 }
-export declare const resource: <T, U = unknown, C = any, TO = T, UO = U>(desc: Resource<T, U, C, TO, UO>) => (options: any) => (req: Request) => Promise<void | import("winston").Logger>;
+export declare const resource: <T, U = unknown, C = any, TO = T, UO = U>(desc: Resource<T, U, C, TO, UO>) => (options: any) => (req: Request) => Promise<void>;

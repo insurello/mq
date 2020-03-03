@@ -17,7 +17,10 @@ exports.resource = (desc) => {
             .then(_context => desc.response(_context))
             .then(result => decoder_1.decode(desc.type[1], result))
             .then(response_1.response(req))))
-            .then(_success => _logger.info(request_1.extractBasicLogInfo(req, "Response sent")), errors_1.errorHandler(req, _logger));
+            .then(_success => {
+            _logger.info(request_1.extractBasicLogInfo(req, "Response sent"));
+            return _success;
+        }, errors_1.errorHandler(req, _logger));
     };
 };
 //# sourceMappingURL=resource.js.map

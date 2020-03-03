@@ -9,4 +9,4 @@ export interface Service<T, C, O> {
     response: (context: C) => PromiseLike<T> | T;
     logger?: Logger;
 }
-export declare const service: <T = unknown, C = any, O = T>(desc: Service<T, C, O>) => (options: any) => (req: Request) => Promise<void | import("winston").Logger>;
+export declare const service: <T = unknown, C = any, O = T>(desc: Service<T, C, O>) => (options: any) => (req: Request) => Promise<void>;
