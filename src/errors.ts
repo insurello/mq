@@ -36,7 +36,7 @@ export const errorHandler = (
       typeof (err as CustomError).nackDelayMs === "number"
         ? ((err as CustomError).nackDelayMs as number)
         : defaultDelayMs;
-    logger.error(err.stack ? err.stack : err.message, requestInfo);
+    logger.error(err.stack ? err.stack : err.message, requestInfo, { delayMs });
     return delay(delayMs).then(() => req.nack());
   } else if (isError(err)) {
     response(req)(err, { "x-error": err.error });

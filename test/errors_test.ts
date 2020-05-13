@@ -47,7 +47,7 @@ describe("errors", () => {
     });
 
     describe("with an instance of `Error` with .nackDelayMs", () => {
-      it.only("should nack after the given delay", async () => {
+      it("should nack after the given delay", async () => {
         const error = new Error("test");
         (error as any).nackDelayMs = 50;
         const errorPromise = errorHandler(req, logger, 0)(error);
