@@ -15,6 +15,9 @@ const isError = (err: any): err is ErrorDescription =>
   (err as ErrorDescription).error_description !== undefined &&
   typeof (err as ErrorDescription).error_description === "string";
 
+const delay = (sleepMs: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, sleepMs));
+
 export const errorHandler = (req: Request, logger: Logger) => (
   err?: unknown
 ) => {
