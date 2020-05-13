@@ -16,6 +16,7 @@ describe("resource", () => {
     forbidden: sinon.stub().resolvesArg(1),
     update: sinon.stub().resolvesArg(1),
     response: sinon.stub().resolvesArg(0),
+    defaultNackDelayMs: 0,
   };
 
   const req = {

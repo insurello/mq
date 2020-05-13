@@ -17,6 +17,7 @@ interface SingleCallbackStyle<T, C, O> {
   init: (options: any) => PromiseLike<C> | C;
   event: Callback<T, C>;
   logger?: Logger;
+  defaultNackDelayMs?: number;
 }
 
 interface EventCallbackStyle<T, C, O> {
@@ -27,6 +28,7 @@ interface EventCallbackStyle<T, C, O> {
     [key: string]: Callback<T, C>;
   };
   logger?: Logger;
+  defaultNackDelayMs?: number;
 }
 
 export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
@@ -52,7 +54,7 @@ export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
           )
         );
         return success;
-      }, errorHandler(req, _logger));
+      }, errorHandler(req, _logger, desc.defaultNackDelayMs));
   };
 };
 

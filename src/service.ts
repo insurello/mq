@@ -12,6 +12,7 @@ export interface Service<T, C, O> {
   forbidden: (headers: Headers, context: C) => PromiseLike<C> | C;
   response: (context: C) => PromiseLike<T> | T;
   logger?: Logger;
+  defaultNackDelayMs?: number;
 }
 
 export const service = <T = t.mixed, C = any, O = T>(
@@ -31,6 +32,6 @@ export const service = <T = t.mixed, C = any, O = T>(
           createDurationLogInfo(req, "Response sent", durationStart, Date.now())
         );
         return success;
-      }, errorHandler(req, _logger));
+      }, errorHandler(req, _logger, desc.defaultNackDelayMs));
   };
 };

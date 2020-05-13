@@ -35,7 +35,7 @@ describe("errors", () => {
     });
 
     describe("with an instance of `Error`", () => {
-      beforeEach(() => errorHandler(req, logger)(new Error("test")));
+      beforeEach(() => errorHandler(req, logger, 0)(new Error("test")));
 
       it("should nack the request", () => req.nack.called.should.equal(true));
 
@@ -47,7 +47,8 @@ describe("errors", () => {
       beforeEach(() =>
         errorHandler(
           req,
-          logger
+          logger,
+          0
         )({
           error: "test",
           error_description: "Test",
@@ -74,7 +75,7 @@ describe("errors", () => {
     });
 
     describe("with a string", () => {
-      beforeEach(() => errorHandler(req, logger)("test"));
+      beforeEach(() => errorHandler(req, logger, 0)("test"));
 
       it("should reply", () => req.reply.called.should.equal(true));
 
@@ -95,7 +96,7 @@ describe("errors", () => {
     });
 
     describe("with undefined instead of an error", () => {
-      beforeEach(() => errorHandler(req, logger)(undefined));
+      beforeEach(() => errorHandler(req, logger, 0)(undefined));
 
       it("should reject the request", () =>
         req.reject.called.should.equal(true));

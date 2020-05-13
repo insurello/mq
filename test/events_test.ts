@@ -29,6 +29,7 @@ describe("events", () => {
       type: t.any,
       init: () => ({}),
       event: sinon.fake(),
+      defaultNackDelayMs: 0,
     };
 
     describe("incoming event", () => {
@@ -60,6 +61,7 @@ describe("events", () => {
       events: {
         test: sinon.stub().resolves({}),
       },
+      defaultNackDelayMs: 0,
     };
 
     describe("incoming event", () => {

@@ -14,6 +14,7 @@ export interface Resource<T, U, C, TO, UO> {
   update: (data: T, context: C) => PromiseLike<C> | C;
   response: (context: C) => PromiseLike<U> | U;
   logger?: Logger;
+  defaultNackDelayMs?: number;
 }
 
 export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
@@ -39,6 +40,6 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
           createDurationLogInfo(req, "Response sent", durationStart, Date.now())
         );
         return success;
-      }, errorHandler(req, _logger));
+      }, errorHandler(req, _logger, desc.defaultNackDelayMs));
   };
 };
