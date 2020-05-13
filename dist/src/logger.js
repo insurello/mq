@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.logger = void 0;
 const winston = require("winston");
 exports.logger = winston.createLogger({
     transports: [
@@ -8,9 +9,9 @@ exports.logger = winston.createLogger({
             format: process.env.NODE_ENV === "production"
                 ? winston.format.json()
                 : winston.format.combine(winston.format.colorize(), winston.format.prettyPrint(), winston.format.simple()),
-            handleExceptions: true
-        })
+            handleExceptions: true,
+        }),
     ],
-    exitOnError: false
+    exitOnError: false,
 });
 //# sourceMappingURL=logger.js.map

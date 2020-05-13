@@ -16,13 +16,13 @@ describe("errors", () => {
     const req = {
       properties: {
         headers: {},
-        replyTo: "reply-queue"
+        replyTo: "reply-queue",
       },
       body: {},
       ack: sinon.spy(),
       nack: sinon.spy(),
       reply: sinon.spy(),
-      reject: sinon.spy()
+      reject: sinon.spy(),
     };
 
     afterEach(() => {
@@ -50,7 +50,7 @@ describe("errors", () => {
           logger
         )({
           error: "test",
-          error_description: "Test"
+          error_description: "Test",
         })
       );
 
@@ -59,14 +59,14 @@ describe("errors", () => {
       it("should reply with an error in the body", () =>
         req.reply.lastCall.args[0].should.deep.equal({
           error: "test",
-          error_description: "Test"
+          error_description: "Test",
         }));
 
       it("should reply with the `x-error` header set", () =>
         req.reply.lastCall.args[1].should.deep.include({
           headers: {
-            "x-error": "test"
-          }
+            "x-error": "test",
+          },
         }));
 
       it("should log a warning message", () =>
@@ -80,14 +80,14 @@ describe("errors", () => {
 
       it("should reply with an error in the body", () =>
         req.reply.lastCall.args[0].should.deep.equal({
-          error: "test"
+          error: "test",
         }));
 
       it("should reply with the `x-error` header set", () =>
         req.reply.lastCall.args[1].should.deep.include({
           headers: {
-            "x-error": "test"
-          }
+            "x-error": "test",
+          },
         }));
 
       it("should log a warning message", () =>

@@ -21,7 +21,7 @@ export const errorHandler = (req: Request, logger: Logger) => (
   const requestInfo = {
     type: req.type,
     queue: req.queue,
-    properties: req.properties
+    properties: req.properties,
   };
 
   if (err instanceof Error) {

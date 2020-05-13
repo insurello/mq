@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.errorHandler = void 0;
 const response_1 = require("./response");
 const isError = (err) => err &&
     typeof err === "object" &&
@@ -11,7 +12,7 @@ exports.errorHandler = (req, logger) => (err) => {
     const requestInfo = {
         type: req.type,
         queue: req.queue,
-        properties: req.properties
+        properties: req.properties,
     };
     if (err instanceof Error) {
         req.nack();

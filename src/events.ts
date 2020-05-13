@@ -34,15 +34,15 @@ export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
   return (options: any) => (req: Request) => {
     const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
-      .then(context =>
-        decode(desc.type, req.body).then(data =>
+      .then((context) =>
+        decode(desc.type, req.body).then((data) =>
           isEventCallbackStyle(desc)
             ? Promise.resolve(eventHandler(desc, req, data, context))
             : Promise.resolve(desc.event(data, context))
         )
       )
       .then(() => req.ack())
-      .then(success => {
+      .then((success) => {
         _logger.info(
           createDurationLogInfo(
             req,

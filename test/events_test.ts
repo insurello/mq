@@ -8,13 +8,13 @@ chai.should();
 describe("events", () => {
   const req = {
     properties: {
-      headers: {}
+      headers: {},
     },
     body: {},
     ack: sinon.spy(),
     nack: sinon.spy(),
     reject: sinon.spy(),
-    reply: sinon.spy()
+    reply: sinon.spy(),
   };
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("events", () => {
     const desc = {
       type: t.any,
       init: () => ({}),
-      event: sinon.fake()
+      event: sinon.fake(),
     };
 
     describe("incoming event", () => {
@@ -58,8 +58,8 @@ describe("events", () => {
       type: t.any,
       init: () => ({}),
       events: {
-        test: sinon.stub().resolves({})
-      }
+        test: sinon.stub().resolves({}),
+      },
     };
 
     describe("incoming event", () => {

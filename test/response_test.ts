@@ -11,13 +11,13 @@ describe("response", () => {
     const req = {
       properties: {
         headers: {},
-        replyTo: "reply-queue"
+        replyTo: "reply-queue",
       },
       body: {},
       ack: sinon.spy(),
       nack: sinon.spy(),
       reply: sinon.spy(),
-      reject: sinon.spy()
+      reject: sinon.spy(),
     };
 
     afterEach(() => {
@@ -37,12 +37,12 @@ describe("response", () => {
 
       it("should reply with headers", () =>
         req.reply.lastCall.args[1].should.deep.include({
-          headers: { header: "test" }
+          headers: { header: "test" },
         }));
 
       it("should reply with application/json as content type", () =>
         req.reply.lastCall.args[1].should.deep.include({
-          contentType: "application/json"
+          contentType: "application/json",
         }));
     });
 

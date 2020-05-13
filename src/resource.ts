@@ -23,18 +23,18 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
   return (options: any) => (req: Request) => {
     const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
-      .then(context => desc.authorized(req.properties.headers, context))
-      .then(context => desc.exists(req.properties.headers, context))
-      .then(context => desc.forbidden(req.properties.headers, context))
-      .then(context =>
-        decode(desc.type[0], req.body).then(data =>
+      .then((context) => desc.authorized(req.properties.headers, context))
+      .then((context) => desc.exists(req.properties.headers, context))
+      .then((context) => desc.forbidden(req.properties.headers, context))
+      .then((context) =>
+        decode(desc.type[0], req.body).then((data) =>
           Promise.resolve(desc.update(data, context))
-            .then(_context => desc.response(_context))
-            .then(result => decode(desc.type[1], result))
+            .then((_context) => desc.response(_context))
+            .then((result) => decode(desc.type[1], result))
             .then(response(req))
         )
       )
-      .then(success => {
+      .then((success) => {
         _logger.info(
           createDurationLogInfo(req, "Response sent", durationStart, Date.now())
         );

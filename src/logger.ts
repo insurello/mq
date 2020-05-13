@@ -14,8 +14,8 @@ export const logger = winston.createLogger({
               winston.format.prettyPrint(),
               winston.format.simple()
             ),
-      handleExceptions: true
-    })
+      handleExceptions: true,
+    }),
   ],
-  exitOnError: false
+  exitOnError: false,
 });

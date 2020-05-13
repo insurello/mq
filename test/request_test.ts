@@ -21,14 +21,14 @@ describe("Request", () => {
           ack: returnVoid,
           nack: returnVoid,
           reject: returnVoid,
-          reply: returnVoid
+          reply: returnVoid,
         };
 
         const expected = {
           message: "test",
           properties: { headers: { foo: "bar" } },
           queue: "test.queue",
-          duration: 10
+          duration: 10,
         };
 
         return createDurationLogInfo(
@@ -47,14 +47,14 @@ describe("Request", () => {
           ack: returnVoid,
           nack: returnVoid,
           reject: returnVoid,
-          reply: returnVoid
+          reply: returnVoid,
         };
 
         const expected = {
           message: "test",
           properties: { headers: {} },
           queue: "test.queue",
-          duration: 0
+          duration: 0,
         };
         return createDurationLogInfo(input, "test", 0, 0).should.deep.equal(
           expected

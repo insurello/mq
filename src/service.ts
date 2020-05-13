@@ -21,12 +21,12 @@ export const service = <T = t.mixed, C = any, O = T>(
   return (options: any) => (req: Request) => {
     const durationStart = Date.now();
     return Promise.resolve(desc.init(options))
-      .then(context => desc.authorized(req.properties.headers, context))
-      .then(context => desc.forbidden(req.properties.headers, context))
-      .then(context => desc.response(context))
-      .then(result => decode(desc.type, result))
+      .then((context) => desc.authorized(req.properties.headers, context))
+      .then((context) => desc.forbidden(req.properties.headers, context))
+      .then((context) => desc.response(context))
+      .then((result) => decode(desc.type, result))
       .then(response(req))
-      .then(success => {
+      .then((success) => {
         _logger.info(
           createDurationLogInfo(req, "Response sent", durationStart, Date.now())
         );

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.events = void 0;
 const decoder_1 = require("./decoder");
 const errors_1 = require("./errors");
 const logger_1 = require("./logger");
@@ -10,11 +11,11 @@ exports.events = (desc) => {
     return (options) => (req) => {
         const durationStart = Date.now();
         return Promise.resolve(desc.init(options))
-            .then(context => decoder_1.decode(desc.type, req.body).then(data => isEventCallbackStyle(desc)
+            .then((context) => decoder_1.decode(desc.type, req.body).then((data) => isEventCallbackStyle(desc)
             ? Promise.resolve(eventHandler(desc, req, data, context))
             : Promise.resolve(desc.event(data, context))))
             .then(() => req.ack())
-            .then(success => {
+            .then((success) => {
             _logger.info(request_1.createDurationLogInfo(req, "Event processed", durationStart, Date.now()));
             return success;
         }, errors_1.errorHandler(req, _logger));
