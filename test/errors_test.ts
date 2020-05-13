@@ -11,6 +11,9 @@ sinon.stub(logger, "error");
 sinon.stub(logger, "warn");
 sinon.stub(logger, "verbose");
 
+const delay = (sleepMs: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, sleepMs));
+
 describe("errors", () => {
   describe("errorHandler()", () => {
     const req = {
@@ -41,6 +44,21 @@ describe("errors", () => {
 
       it("should log an error message", () =>
         (logger.error as sinon.SinonStub).called.should.equal(true));
+    });
+
+    describe("with an instance of `Error` with .nackDelayMs", () => {
+      it.only("should nack after the given delay", async () => {
+        const error = new Error("test");
+        (error as any).nackDelayMs = 50;
+        const errorPromise = errorHandler(req, logger, 0)(error);
+        await delay(40);
+        req.nack.called.should.equal(false);
+        await delay(10);
+        req.nack.called.should.equal(true);
+        const now = Date.now();
+        await errorPromise;
+        (Date.now() - now).should.equal(0);
+      });
     });
 
     describe("with an error object", () => {
