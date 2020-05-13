@@ -43,12 +43,6 @@ describe("errors", () => {
         (logger.error as sinon.SinonStub).called.should.equal(true));
     });
 
-    describe("with an instance of `Error` with .nackDelayMs", () => {
-      it("should nack after the given delay", async () => {
-        await errorHandler(req, logger, 0)(new Error("test"));
-      });
-    });
-
     describe("with an error object", () => {
       beforeEach(() =>
         errorHandler(
