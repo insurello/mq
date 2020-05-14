@@ -18,7 +18,7 @@ exports.events = (desc) => {
             .then((success) => {
             _logger.info(request_1.createDurationLogInfo(req, "Event processed", durationStart, Date.now()));
             return success;
-        }, errors_1.errorHandler(req, _logger));
+        }, errors_1.errorHandler(req, _logger, desc.defaultNackDelayMs));
     };
 };
 const eventHandler = (desc, req, data, context) => (typeof desc.event === "string" || desc.event === undefined) &&

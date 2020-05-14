@@ -8,6 +8,7 @@ interface SingleCallbackStyle<T, C, O> {
     init: (options: any) => PromiseLike<C> | C;
     event: Callback<T, C>;
     logger?: Logger;
+    defaultNackDelayMs?: number;
 }
 interface EventCallbackStyle<T, C, O> {
     type: t.Type<T, O>;
@@ -17,6 +18,7 @@ interface EventCallbackStyle<T, C, O> {
         [key: string]: Callback<T, C>;
     };
     logger?: Logger;
+    defaultNackDelayMs?: number;
 }
 export declare const events: <T, C = any, O = T>(desc: Events<T, C, O>) => (options: any) => (req: Request) => Promise<void>;
 export {};

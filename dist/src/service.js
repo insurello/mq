@@ -19,7 +19,7 @@ exports.service = (desc) => {
             .then((success) => {
             _logger.info(request_1.createDurationLogInfo(req, "Response sent", durationStart, Date.now()));
             return success;
-        }, errors_1.errorHandler(req, _logger));
+        }, errors_1.errorHandler(req, _logger, desc.defaultNackDelayMs));
     };
 };
 //# sourceMappingURL=service.js.map
