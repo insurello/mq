@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     machine:
-        enabled: true
+      enabled: true
     working_directory: ~/insurello
     steps:
       - checkout
