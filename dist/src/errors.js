@@ -19,7 +19,7 @@ exports.errorHandler = (req, logger, defaultDelayMs = 30000) => (err) => {
         const delayMs = typeof err.nackDelayMs === "number"
             ? err.nackDelayMs
             : defaultDelayMs;
-        logger.error(err.stack ? err.stack : err.message, requestInfo, { delayMs });
+        logger.error(err.stack ? err.stack : err.message, Object.assign(Object.assign({}, requestInfo), { delayMs }));
         return delay(delayMs).then(() => req.nack());
     }
     else if (isError(err)) {
