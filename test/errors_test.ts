@@ -55,9 +55,7 @@ describe("errors", () => {
         req.nack.called.should.equal(false);
         await delay(10);
         req.nack.called.should.equal(true);
-        const now = Date.now();
         await errorPromise;
-        (Date.now() - now).should.equal(0);
       });
     });
 
