@@ -8,5 +8,6 @@ export interface Service<T, C, O> {
     forbidden: (headers: Headers, context: C) => PromiseLike<C> | C;
     response: (context: C) => PromiseLike<T> | T;
     logger?: Logger;
+    defaultNackDelayMs?: number;
 }
 export declare const service: <T = unknown, C = any, O = T>(desc: Service<T, C, O>) => (options: any) => (req: Request) => Promise<void>;

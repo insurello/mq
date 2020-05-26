@@ -11,6 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createDurationLogInfo = void 0;
 exports.createDurationLogInfo = (request, message, startTimestamp, endTimestamp) => {
     const _a = request.properties.headers, { authorization } = _a, filteredHeaders = __rest(_a, ["authorization"]);
     const _b = request.properties, { headers } = _b, filteredProperties = __rest(_b, ["headers"]);
@@ -19,7 +20,7 @@ exports.createDurationLogInfo = (request, message, startTimestamp, endTimestamp)
         message,
         properties: Object.assign({ headers: filteredHeaders }, filteredProperties),
         queue: request.queue,
-        duration
+        duration,
     };
 };
 //# sourceMappingURL=request.js.map

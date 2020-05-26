@@ -10,7 +10,7 @@ build: $(SRC)
 	$(BIN)/tsc --outDir dist --project . --pretty --declaration
 
 lint: $(SRC)
-	$(BIN)/prettier -l $(SRC) $(TEST)
+	$(BIN)/prettier --check .
 	$(BIN)/tslint --project . --format codeFrame
 
 format: $(SRC)

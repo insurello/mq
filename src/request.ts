@@ -40,6 +40,6 @@ export const createDurationLogInfo = (
     message,
     properties: { headers: filteredHeaders, ...filteredProperties },
     queue: request.queue,
-    duration
+    duration,
   };
 };

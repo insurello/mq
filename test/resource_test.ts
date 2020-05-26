@@ -15,21 +15,22 @@ describe("resource", () => {
     exists: sinon.stub().resolvesArg(1),
     forbidden: sinon.stub().resolvesArg(1),
     update: sinon.stub().resolvesArg(1),
-    response: sinon.stub().resolvesArg(0)
+    response: sinon.stub().resolvesArg(0),
+    defaultNackDelayMs: 0,
   };
 
   const req = {
     properties: {
       headers: {
-        test: "header"
+        test: "header",
       },
-      replyTo: "reply-queue"
+      replyTo: "reply-queue",
     },
     body: { test: "test" },
     ack: sinon.spy(),
     nack: sinon.spy(),
     reply: sinon.spy(),
-    reject: sinon.spy()
+    reject: sinon.spy(),
   };
 
   afterEach(() => {

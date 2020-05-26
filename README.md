@@ -36,13 +36,13 @@ If the `event` field is a string instead of a callback function it is interprete
 ```typescript
 mq.events({
   type: commit.decoder,
-  init: options => ({}),
+  init: (options) => ({}),
   event: "event",
   events: {
     claim: (commit: Commit, context) => Promise.resolve(),
     closed: (commit: Commit, context) => Promise.resolve(),
-    rejected: (commit: Commit, context) => Promise.resolve()
-  }
+    rejected: (commit: Commit, context) => Promise.resolve(),
+  },
 });
 ```
 
@@ -56,10 +56,10 @@ import * as t from "io-ts";
 
 const helloWorld = mq.service({
   type: t.type({ message: t.string }),
-  init: options => ({}),
+  init: (options) => ({}),
   authorized: (headers, context) => Promise.resolve(context),
   forbidden: (headers, context) => Promise.resolve(context),
-  response: context => Promise.resolve({ message: "Hello World!" })
+  response: (context) => Promise.resolve({ message: "Hello World!" }),
 });
 ```
 
@@ -81,3 +81,11 @@ const helloName = mq.resource({
   response: context => Promise.resolve({ message: `Hello ${context.name}!`` })
 });
 ```
+
+## Nack delay
+
+By default, all handler types sleep for 30 seconds before nacking, to reduce the number of errors reported.
+
+You can pass for example `defaultNackDelayMs: 10000` to `mq.events`, `mq.service` and `mq.resource` to change the default nack delay.
+
+You can also set `.nackDelayMs = 0` on specific `Error`s to set a different delay for a certain error.

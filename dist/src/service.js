@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.service = void 0;
 const decoder_1 = require("./decoder");
 const errors_1 = require("./errors");
 const logger_1 = require("./logger");
@@ -10,15 +11,15 @@ exports.service = (desc) => {
     return (options) => (req) => {
         const durationStart = Date.now();
         return Promise.resolve(desc.init(options))
-            .then(context => desc.authorized(req.properties.headers, context))
-            .then(context => desc.forbidden(req.properties.headers, context))
-            .then(context => desc.response(context))
-            .then(result => decoder_1.decode(desc.type, result))
+            .then((context) => desc.authorized(req.properties.headers, context))
+            .then((context) => desc.forbidden(req.properties.headers, context))
+            .then((context) => desc.response(context))
+            .then((result) => decoder_1.decode(desc.type, result))
             .then(response_1.response(req))
-            .then(success => {
+            .then((success) => {
             _logger.info(request_1.createDurationLogInfo(req, "Response sent", durationStart, Date.now()));
             return success;
-        }, errors_1.errorHandler(req, _logger));
+        }, errors_1.errorHandler(req, _logger, desc.defaultNackDelayMs));
     };
 };
 //# sourceMappingURL=service.js.map

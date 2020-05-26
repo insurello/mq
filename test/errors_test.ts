@@ -11,18 +11,21 @@ sinon.stub(logger, "error");
 sinon.stub(logger, "warn");
 sinon.stub(logger, "verbose");
 
+const delay = (sleepMs: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, sleepMs));
+
 describe("errors", () => {
   describe("errorHandler()", () => {
     const req = {
       properties: {
         headers: {},
-        replyTo: "reply-queue"
+        replyTo: "reply-queue",
       },
       body: {},
       ack: sinon.spy(),
       nack: sinon.spy(),
       reply: sinon.spy(),
-      reject: sinon.spy()
+      reject: sinon.spy(),
     };
 
     afterEach(() => {
@@ -35,7 +38,7 @@ describe("errors", () => {
     });
 
     describe("with an instance of `Error`", () => {
-      beforeEach(() => errorHandler(req, logger)(new Error("test")));
+      beforeEach(() => errorHandler(req, logger, 0)(new Error("test")));
 
       it("should nack the request", () => req.nack.called.should.equal(true));
 
@@ -43,14 +46,28 @@ describe("errors", () => {
         (logger.error as sinon.SinonStub).called.should.equal(true));
     });
 
+    describe("with an instance of `Error` with .nackDelayMs", () => {
+      it("should nack after the given delay", async () => {
+        const error = new Error("test");
+        (error as any).nackDelayMs = 50;
+        const errorPromise = errorHandler(req, logger, 0)(error);
+        await delay(40);
+        req.nack.called.should.equal(false);
+        await delay(10);
+        req.nack.called.should.equal(true);
+        await errorPromise;
+      });
+    });
+
     describe("with an error object", () => {
       beforeEach(() =>
         errorHandler(
           req,
-          logger
+          logger,
+          0
         )({
           error: "test",
-          error_description: "Test"
+          error_description: "Test",
         })
       );
 
@@ -59,14 +76,14 @@ describe("errors", () => {
       it("should reply with an error in the body", () =>
         req.reply.lastCall.args[0].should.deep.equal({
           error: "test",
-          error_description: "Test"
+          error_description: "Test",
         }));
 
       it("should reply with the `x-error` header set", () =>
         req.reply.lastCall.args[1].should.deep.include({
           headers: {
-            "x-error": "test"
-          }
+            "x-error": "test",
+          },
         }));
 
       it("should log a warning message", () =>
@@ -74,20 +91,20 @@ describe("errors", () => {
     });
 
     describe("with a string", () => {
-      beforeEach(() => errorHandler(req, logger)("test"));
+      beforeEach(() => errorHandler(req, logger, 0)("test"));
 
       it("should reply", () => req.reply.called.should.equal(true));
 
       it("should reply with an error in the body", () =>
         req.reply.lastCall.args[0].should.deep.equal({
-          error: "test"
+          error: "test",
         }));
 
       it("should reply with the `x-error` header set", () =>
         req.reply.lastCall.args[1].should.deep.include({
           headers: {
-            "x-error": "test"
-          }
+            "x-error": "test",
+          },
         }));
 
       it("should log a warning message", () =>
@@ -95,7 +112,7 @@ describe("errors", () => {
     });
 
     describe("with undefined instead of an error", () => {
-      beforeEach(() => errorHandler(req, logger)(undefined));
+      beforeEach(() => errorHandler(req, logger, 0)(undefined));
 
       it("should reject the request", () =>
         req.reject.called.should.equal(true));

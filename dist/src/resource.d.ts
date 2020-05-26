@@ -10,5 +10,6 @@ export interface Resource<T, U, C, TO, UO> {
     update: (data: T, context: C) => PromiseLike<C> | C;
     response: (context: C) => PromiseLike<U> | U;
     logger?: Logger;
+    defaultNackDelayMs?: number;
 }
 export declare const resource: <T, U = unknown, C = any, TO = T, UO = U>(desc: Resource<T, U, C, TO, UO>) => (options: any) => (req: Request) => Promise<void>;
