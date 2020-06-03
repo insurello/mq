@@ -7,9 +7,9 @@ const logger_1 = require("./logger");
 const request_1 = require("./request");
 const response_1 = require("./response");
 exports.resource = (desc) => {
-    const _logger = desc.logger ? desc.logger : logger_1.logger;
+    const logger = desc.logger ? desc.logger : logger_1.logger;
     return (options) => (req) => {
-        const durationStart = Date.now();
+        const startTimestamp = Date.now();
         return Promise.resolve(desc.init(options))
             .then((context) => desc.authorized(req.properties.headers, context))
             .then((context) => desc.exists(req.properties.headers, context))
@@ -19,9 +19,9 @@ exports.resource = (desc) => {
             .then((result) => decoder_1.decode(desc.type[1], result))
             .then(response_1.response(req))))
             .then((success) => {
-            _logger.info(request_1.createDurationLogInfo(req, "Response sent", durationStart, Date.now()));
+            logger.info(request_1.createDurationLogInfo(req, "Response sent", startTimestamp, Date.now()));
             return success;
-        }, errors_1.errorHandler(req, _logger, desc.defaultNackDelayMs));
+        }, errors_1.errorHandler({ req, logger, startTimestamp, defaultNackDelayMs: desc.defaultNackDelayMs }));
     };
 };
 //# sourceMappingURL=resource.js.map

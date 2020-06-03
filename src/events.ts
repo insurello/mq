@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
-import { Logger, logger } from "./logger";
+import { Logger, logger as defaultLogger } from "./logger";
 import { createDurationLogInfo, Request } from "./request";
 
 const defaultEventField = "event";
@@ -32,9 +32,9 @@ interface EventCallbackStyle<T, C, O> {
 }
 
 export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
-  const _logger = desc.logger ? desc.logger : logger;
+  const logger = desc.logger ? desc.logger : defaultLogger;
   return (options: any) => (req: Request) => {
-    const durationStart = Date.now();
+    const startTimestamp = Date.now();
     return Promise.resolve(desc.init(options))
       .then((context) =>
         decode(desc.type, req.body).then((data) =>
@@ -45,16 +45,16 @@ export const events = <T, C = any, O = T>(desc: Events<T, C, O>) => {
       )
       .then(() => req.ack())
       .then((success) => {
-        _logger.info(
+        logger.info(
           createDurationLogInfo(
             req,
             "Event processed",
-            durationStart,
+            startTimestamp,
             Date.now()
           )
         );
         return success;
-      }, errorHandler(req, _logger, desc.defaultNackDelayMs));
+      }, errorHandler({ req, logger, startTimestamp, defaultNackDelayMs: desc.defaultNackDelayMs }));
   };
 };
 

@@ -24,18 +24,18 @@ export const errorHandler = ({
   req,
   logger,
   startTimestamp,
-  defaultDelayMs = 30000,
+  defaultNackDelayMs = 30000,
 }: {
   req: Request;
   logger: Logger;
   startTimestamp: number;
-  defaultDelayMs?: number;
+  defaultNackDelayMs?: number;
 }) => (err?: unknown): Promise<void> => {
   if (err instanceof Error) {
     const delayMs =
       typeof (err as CustomError).nackDelayMs === "number"
         ? ((err as CustomError).nackDelayMs as number)
-        : defaultDelayMs;
+        : defaultNackDelayMs;
     logger.error(
       createDurationInfo(
         req,
