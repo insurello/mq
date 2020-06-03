@@ -38,7 +38,14 @@ describe("errors", () => {
     });
 
     describe("with an instance of `Error`", () => {
-      beforeEach(() => errorHandler(req, logger, 0)(new Error("test")));
+      beforeEach(() =>
+        errorHandler({
+          req,
+          logger,
+          startTimestamp: Date.now(),
+          defaultNackDelayMs: 0,
+        })(new Error("test"))
+      );
 
       it("should nack the request", () => req.nack.called.should.equal(true));
 
@@ -50,7 +57,12 @@ describe("errors", () => {
       it("should nack after the given delay", async () => {
         const error = new Error("test");
         (error as any).nackDelayMs = 50;
-        const errorPromise = errorHandler(req, logger, 0)(error);
+        const errorPromise = errorHandler({
+          req,
+          logger,
+          startTimestamp: Date.now(),
+          defaultNackDelayMs: 0,
+        })(error);
         await delay(40);
         req.nack.called.should.equal(false);
         await delay(10);
@@ -61,11 +73,12 @@ describe("errors", () => {
 
     describe("with an error object", () => {
       beforeEach(() =>
-        errorHandler(
+        errorHandler({
           req,
           logger,
-          0
-        )({
+          startTimestamp: Date.now(),
+          defaultNackDelayMs: 0,
+        })({
           error: "test",
           error_description: "Test",
         })
@@ -91,7 +104,14 @@ describe("errors", () => {
     });
 
     describe("with a string", () => {
-      beforeEach(() => errorHandler(req, logger, 0)("test"));
+      beforeEach(() =>
+        errorHandler({
+          req,
+          logger,
+          startTimestamp: Date.now(),
+          defaultNackDelayMs: 0,
+        })("test")
+      );
 
       it("should reply", () => req.reply.called.should.equal(true));
 
@@ -112,7 +132,14 @@ describe("errors", () => {
     });
 
     describe("with undefined instead of an error", () => {
-      beforeEach(() => errorHandler(req, logger, 0)(undefined));
+      beforeEach(() =>
+        errorHandler({
+          req,
+          logger,
+          startTimestamp: Date.now(),
+          defaultNackDelayMs: 0,
+        })(undefined)
+      );
 
       it("should reject the request", () =>
         req.reject.called.should.equal(true));

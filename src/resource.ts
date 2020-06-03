@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import { decode } from "./decoder";
 import { errorHandler } from "./errors";
-import { Logger, logger } from "./logger";
+import { Logger, logger as defaultLogger } from "./logger";
 import { createDurationLogInfo, Headers, Request } from "./request";
 import { response } from "./response";
 
@@ -20,9 +20,9 @@ export interface Resource<T, U, C, TO, UO> {
 export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
   desc: Resource<T, U, C, TO, UO>
 ) => {
-  const _logger = desc.logger ? desc.logger : logger;
+  const logger = desc.logger ? desc.logger : defaultLogger;
   return (options: any) => (req: Request) => {
-    const durationStart = Date.now();
+    const startTimestamp = Date.now();
     return Promise.resolve(desc.init(options))
       .then((context) => desc.authorized(req.properties.headers, context))
       .then((context) => desc.exists(req.properties.headers, context))
@@ -36,10 +36,15 @@ export const resource = <T, U = t.mixed, C = any, TO = T, UO = U>(
         )
       )
       .then((success) => {
-        _logger.info(
-          createDurationLogInfo(req, "Response sent", durationStart, Date.now())
+        logger.info(
+          createDurationLogInfo(
+            req,
+            "Response sent",
+            startTimestamp,
+            Date.now()
+          )
         );
         return success;
-      }, errorHandler(req, _logger, desc.defaultNackDelayMs));
+      }, errorHandler({ req, logger, startTimestamp, defaultNackDelayMs: desc.defaultNackDelayMs }));
   };
 };
