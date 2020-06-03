@@ -20,38 +20,64 @@ const delay = (sleepMs: number): Promise<void> =>
 
 type CustomError = Error & { nackDelayMs?: unknown };
 
-export const errorHandler = (
-  req: Request,
-  logger: Logger,
-  defaultDelayMs: number = 30000
-) => (err?: unknown): Promise<void> => {
-  const requestInfo = {
-    type: req.type,
-    queue: req.queue,
-    properties: req.properties,
-  };
-
+export const errorHandler = ({
+  req,
+  logger,
+  startTimestamp,
+  defaultDelayMs = 30000,
+}: {
+  req: Request;
+  logger: Logger;
+  startTimestamp: number;
+  defaultDelayMs?: number;
+}) => (err?: unknown): Promise<void> => {
   if (err instanceof Error) {
     const delayMs =
       typeof (err as CustomError).nackDelayMs === "number"
         ? ((err as CustomError).nackDelayMs as number)
         : defaultDelayMs;
-    logger.error(err.stack ? err.stack : err.message, {
-      ...requestInfo,
-      delayMs,
-    });
+    logger.error(
+      createDurationInfo(
+        req,
+        err.stack ? err.stack : err.message,
+        startTimestamp,
+        Date.now(),
+        delayMs
+      )
+    );
     return delay(delayMs).then(() => req.nack());
   } else if (isError(err)) {
     response(req)(err, { "x-error": err.error });
-    logger.warn(JSON.stringify(err), requestInfo);
+    logger.warn(
+      createDurationInfo(req, JSON.stringify(err), startTimestamp, Date.now())
+    );
     return Promise.resolve();
   } else if (typeof err === "string") {
     response(req)({ error: err }, { "x-error": err });
-    logger.warn(JSON.stringify(err), requestInfo);
+    logger.warn(
+      createDurationInfo(req, JSON.stringify(err), startTimestamp, Date.now())
+    );
     return Promise.resolve();
   } else {
     req.reject();
-    logger.verbose("rejected", requestInfo);
+    logger.verbose(
+      createDurationInfo(req, "rejected", startTimestamp, Date.now())
+    );
     return Promise.resolve();
   }
 };
+
+const createDurationInfo = (
+  request: Request,
+  message: string,
+  startTimestamp: number,
+  endTimestamp: number,
+  delayMs?: number
+) => ({
+  message,
+  type: request.type,
+  properties: request.properties,
+  queue: request.queue,
+  duration: endTimestamp - startTimestamp,
+  delayMs,
+});
